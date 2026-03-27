@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 function Wait-ForHttp200 {
   param(
     [string]$Url,
-    [int]$Attempts = 30
+    [int]$Attempts = 60
   )
 
   for ($i = 1; $i -le $Attempts; $i++) {
@@ -35,8 +35,15 @@ $job = Start-Job -ScriptBlock {
 } -ArgumentList $workingDirectory, $Port
 
 try {
+  Start-Sleep -Seconds 1
+  if ($job.State -eq "Failed") {
+    $jobError = (Receive-Job -Job $job -Keep | Out-String)
+    throw "App process failed to start. Output: $jobError"
+  }
+
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/"
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/bible"
+  Wait-ForHttp200 -Url "http://127.0.0.1:$Port/daily"
 
   $apiUrl = "http://127.0.0.1:$Port/api/bible?reference=John%203%3A16&translation=web"
   $apiResponse = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 5
@@ -45,8 +52,21 @@ try {
     throw "API smoke test failed: expected at least one verse."
   }
 
+  $dailyApiUrl = "http://127.0.0.1:$Port/api/daily?translation=web"
+  $dailyApiResponse = Invoke-RestMethod -Uri $dailyApiUrl -TimeoutSec 5
+  if (-not $dailyApiResponse.data -or -not $dailyApiResponse.data.passage) {
+    throw "Daily API smoke test failed: expected passage payload."
+  }
+
   Write-Host "Smoke test passed." -ForegroundColor Green
 } finally {
+  if ($job) {
+    $jobOutput = Receive-Job -Job $job -Keep -ErrorAction SilentlyContinue | Out-String
+    if ($jobOutput.Trim()) {
+      Write-Host $jobOutput -ForegroundColor DarkGray
+    }
+  }
+
   if ($job) {
     Stop-Job -Job $job -ErrorAction SilentlyContinue | Out-Null
     Remove-Job -Job $job -Force -ErrorAction SilentlyContinue | Out-Null

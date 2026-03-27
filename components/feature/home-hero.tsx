@@ -14,12 +14,18 @@ export function HomeHero() {
         EC2-first project structure. Next step is implementing the first
         feature in `feature-plan.md`.
       </p>
-      <div className="pt-2">
+      <div className="flex flex-wrap gap-3 pt-2">
         <Link
           href="/bible"
           className="inline-flex rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
         >
           Open Bible Lookup
+        </Link>
+        <Link
+          href="/daily"
+          className="inline-flex rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800"
+        >
+          View Daily Verse
         </Link>
       </div>
     </section>

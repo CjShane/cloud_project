@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-03-26
+
+### Added
+
+- Daily verse feature route (`/daily`) with loading and error boundaries
+- Daily verse API route (`/api/daily`) with normalized response payload
+- Resilient fallback behavior for daily verse retrieval when random upstream calls fail
+- Daily verse data-layer tests for random-path and fallback-path behavior
+- Extended EC2 smoke test to validate `/daily` and `/api/daily`
+
 ## [0.1.0] - 2026-03-26
 
 ### Added

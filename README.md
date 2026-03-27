@@ -81,3 +81,5 @@ EC2-first Next.js application with TypeScript, Tailwind CSS, and reusable compon
 
 - Bible lookup route: `/bible`
 - Internal API route: `/api/bible?reference=John%203:16&translation=web`
+- Daily verse route: `/daily`
+- Daily API route: `/api/daily?translation=web`

@@ -22,6 +22,13 @@ Use this file to define scope before implementation starts.
 - [x] Implement first normalized API integration
 - [x] Add loading/error/empty states for core views
 
+## Phase 4: Feature Expansion
+
+- [x] Implement daily verse feature route and API
+- [x] Add fallback behavior for upstream Bible API instability
+- [x] Extend automated smoke coverage for new routes/endpoints
+- [x] Expand test coverage for new data layer behavior
+
 ## Phase 2: Quality and Hardening
 
 - [x] Add baseline tests for core features
