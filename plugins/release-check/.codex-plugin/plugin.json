@@ -1,0 +1,48 @@
+{
+  "name": "release-check",
+  "version": "0.1.0",
+  "description": "Validate EC2 release readiness and deployment guardrails.",
+  "author": {
+    "name": "Cloud Project Team",
+    "email": "devnull@example.com",
+    "url": "https://example.com/cloud-project"
+  },
+  "homepage": "https://example.com/cloud-project/release-check",
+  "repository": "https://example.com/cloud-project/repo",
+  "license": "MIT",
+  "keywords": [
+    "release",
+    "ec2"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks.json",
+  "mcpServers": "./.mcp.json",
+  "apps": "./.app.json",
+  "interface": {
+    "displayName": "Release Check",
+    "shortDescription": "Validate EC2 deployment readiness.",
+    "longDescription": "Checks EC2 constraints, env docs, and release prerequisites before deploy.",
+    "developerName": "Cloud Project Team",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Run"
+    ],
+    "websiteURL": "https://example.com/cloud-project",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "Run release checks for EC2 deploy.",
+      "Validate docs and environment readiness.",
+      "Check for deployment-risking config issues."
+    ],
+    "brandColor": "#1D4ED8",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "screenshots": [
+      "./assets/screenshot1.png",
+      "./assets/screenshot2.png",
+      "./assets/screenshot3.png"
+    ]
+  }
+}

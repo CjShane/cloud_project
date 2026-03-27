@@ -1,0 +1,32 @@
+{
+  "name": "cloud-project-local",
+  "interface": {
+    "displayName": "Cloud Project Local Plugins"
+  },
+  "plugins": [
+    {
+      "name": "preflight-checks",
+      "source": {
+        "source": "local",
+        "path": "./plugins/preflight-checks"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "release-check",
+      "source": {
+        "source": "local",
+        "path": "./plugins/release-check"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

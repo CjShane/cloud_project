@@ -1,0 +1,48 @@
+{
+  "name": "preflight-checks",
+  "version": "0.1.0",
+  "description": "Run baseline checks before merge: build, types, and tests.",
+  "author": {
+    "name": "Cloud Project Team",
+    "email": "devnull@example.com",
+    "url": "https://example.com/cloud-project"
+  },
+  "homepage": "https://example.com/cloud-project/preflight-checks",
+  "repository": "https://example.com/cloud-project/repo",
+  "license": "MIT",
+  "keywords": [
+    "preflight",
+    "quality"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks.json",
+  "mcpServers": "./.mcp.json",
+  "apps": "./.app.json",
+  "interface": {
+    "displayName": "Preflight Checks",
+    "shortDescription": "Run baseline checks before merge.",
+    "longDescription": "Validates build, type quality, and tests with EC2-safe assumptions.",
+    "developerName": "Cloud Project Team",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Run"
+    ],
+    "websiteURL": "https://example.com/cloud-project",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "Run preflight checks for this branch.",
+      "Verify build and test readiness.",
+      "Flag missing env docs and type issues."
+    ],
+    "brandColor": "#0F766E",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "screenshots": [
+      "./assets/screenshot1.png",
+      "./assets/screenshot2.png",
+      "./assets/screenshot3.png"
+    ]
+  }
+}
