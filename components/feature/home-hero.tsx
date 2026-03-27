@@ -27,6 +27,12 @@ export function HomeHero() {
         >
           View Daily Verse
         </Link>
+        <Link
+          href="/compare"
+          className="inline-flex rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800"
+        >
+          Compare Translations
+        </Link>
       </div>
     </section>
   );

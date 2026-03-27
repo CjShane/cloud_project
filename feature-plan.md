@@ -28,6 +28,9 @@ Use this file to define scope before implementation starts.
 - [x] Add fallback behavior for upstream Bible API instability
 - [x] Extend automated smoke coverage for new routes/endpoints
 - [x] Expand test coverage for new data layer behavior
+- [x] Implement translation compare route and API
+- [x] Expand smoke coverage for compare routes/endpoints
+- [x] Add data-layer tests for translation comparison
 
 ## Phase 2: Quality and Hardening
 

@@ -44,6 +44,7 @@ try {
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/"
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/bible"
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/daily"
+  Wait-ForHttp200 -Url "http://127.0.0.1:$Port/compare"
 
   $apiUrl = "http://127.0.0.1:$Port/api/bible?reference=John%203%3A16&translation=web"
   $apiResponse = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 5
@@ -56,6 +57,12 @@ try {
   $dailyApiResponse = Invoke-RestMethod -Uri $dailyApiUrl -TimeoutSec 5
   if (-not $dailyApiResponse.data -or -not $dailyApiResponse.data.passage) {
     throw "Daily API smoke test failed: expected passage payload."
+  }
+
+  $compareApiUrl = "http://127.0.0.1:$Port/api/compare?reference=John%203%3A16&primary=web&secondary=kjv"
+  $compareApiResponse = Invoke-RestMethod -Uri $compareApiUrl -TimeoutSec 5
+  if (-not $compareApiResponse.data -or -not $compareApiResponse.data.primary -or -not $compareApiResponse.data.secondary) {
+    throw "Compare API smoke test failed: expected primary and secondary payloads."
   }
 
   Write-Host "Smoke test passed." -ForegroundColor Green

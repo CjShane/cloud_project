@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-03-26
+
+### Added
+
+- Translation comparison feature route (`/compare`) with loading/error/empty states
+- Compare API route (`/api/compare`) returning normalized primary/secondary passage data
+- Data-layer utility for side-by-side translation retrieval
+- Test coverage for comparison data flow
+- Expanded EC2 smoke test coverage for compare route and endpoint
+
 ## [0.2.0] - 2026-03-26
 
 ### Added
