@@ -1,4 +1,4 @@
-import { TranslationCompare } from "@/components/feature/translation-compare";
+import { TranslationCompare } from "@/components/feature/bible/translation-compare";
 import { PageShell } from "@/components/ui/page-shell";
 
 export default function ComparePage() {
@@ -8,3 +8,4 @@ export default function ComparePage() {
     </PageShell>
   );
 }
+

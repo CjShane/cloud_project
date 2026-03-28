@@ -1,4 +1,4 @@
-import { DailyVerseCard } from "@/components/feature/daily-verse-card";
+import { DailyVerseCard } from "@/components/feature/home/daily-verse-card";
 import { PageShell } from "@/components/ui/page-shell";
 import { fetchDailyVerse } from "@/lib/api/daily-verse";
 
@@ -13,3 +13,4 @@ export default async function DailyPage() {
     </PageShell>
   );
 }
+

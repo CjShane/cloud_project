@@ -43,6 +43,7 @@ try {
 
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/"
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/bible"
+  Wait-ForHttp200 -Url "http://127.0.0.1:$Port/lookup"
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/daily"
   Wait-ForHttp200 -Url "http://127.0.0.1:$Port/compare"
 

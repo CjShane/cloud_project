@@ -1,0 +1,2 @@
+# Put an existing v0 chat ID here if you already have one.
+# Leave blank to let the bridge create a new chat on first use.

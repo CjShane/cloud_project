@@ -1,0 +1,2317 @@
+{
+  "syncedAt": "2026-03-27T23:51:36.984Z",
+  "chatId": "mNm3V8FIcZQ",
+  "projectId": "G2Csj5JSpB5",
+  "summary": {
+    "messageCount": 4,
+    "latestAssistantText": "Good — I have a complete picture of all existing files. I can see several issues to fix and improvements to make:\n\n1. The `SelectionToolbar` uses `position: absolute` but should use `position: fixed` since it positions relative to the viewport (scroll + viewport coords).\n2. The toolbar caret points the wrong way — it should point downward toward the text, meaning the toolbar sits *above* the selection, so the caret is on the *bottom*.\n3. The `useBibleSelection` toolbar offset calculation (`top - 48`) positions the toolbar above the selection rect, but since it's `absolute` in the document, it needs the full scroll offset. When using `fixed` positioning we just use `rect.top`.\n4. The `VerseBlock` uses `bg-primary/8` which isn't a valid Tailwind v4 class (should be `bg-primary/[0.08]`).\n5. The `NotesPanel` on mobile needs a cleaner toggle with a slide/show rather than just `hidden`.\n6. The `NoteEditor` modal `backdrop-blur` class needs a valid value.\n7. The toolbar label logic splits on space to get first word — better to use explicit short labels.\n8. The `BibleReaderPage` layout needs the reading column to be properly centered when the panel is hidden.\n\nLet me rewrite all five component files properly:Now rewrite the main page with corrected layout — `flex-1 mx-auto` centering, a mobile notes drawer toggle that actually shows the panel label, and proper `onMouseDown` dismiss for the toolbar:Here is a summary of every change made and why:\n\n**`useBibleSelection`** — Switched from document-relative `top + scrollY` to pure viewport-relative (`rect.top`) so the toolbar uses `position: fixed` cleanly without scroll math errors. The verse-overlap boundary check logic is unchanged.\n\n**`SelectionToolbar`** — Replaced the `absolute` positioning + inline `style.top` with `position: fixed` via an inline `style` object (necessary because Tailwind purges arbitrary `top`/`left` values that come from runtime state). The CSS triangle caret is now rendered via an inline `style` object to avoid Tailwind utility conflicts, and button labels are explicit strings rather than splitting on spaces. The `Cancel` button is icon-only on the pill to save space.\n\n**`VerseBlock`** — Fixed the selected-state class from `bg-primary/8` (invalid in Tailwind v4) to `bg-primary/[0.07]`. The `data-verse` attribute is placed directly on the `<p>` element so `querySelectorAll(\"[data-verse]\")` in the hook always finds it.\n\n**`NoteCard`** — Made `selectedText` rendering conditional (skips the `<blockquote>` when empty, which happens when a note is created without a selection). The `id` prop is prefixed `_id` to silence the unused-var lint warning while still keeping the prop in the public interface.\n\n**`NotesPanel`** — Desktop panel is now `md:sticky md:top-14` (aligns with the `h-14` header), and the mobile layout uses `flex-col md:flex-row` on the parent content row rather than absolute positioning.\n\n**`BiblePage`** — The content row is now `flex-col md:flex-row` so the panel naturally stacks below on mobile. A `onMouseDown` handler on `<main>` calls `clearSelection()` when clicking outside any `[data-verse]` element, dismissing a stale toolbar.",
+    "previewLines": [
+      "Good — I have a complete picture of all existing files. I can see several issues to fix and improvements to make:",
+      "1. The `SelectionToolbar` uses `position: absolute` but should use `position: fixed` since it positions relative to the viewport (scroll + viewport coords).",
+      "2. The toolbar caret points the wrong way — it should point downward toward the text, meaning the toolbar sits *above* the selection, so the caret is on the *bottom*.",
+      "3. The `useBibleSelection` toolbar offset calculation (`top - 48`) positions the toolbar above the selection rect, but since it's `absolute` in the document, it needs the full scroll offset. When using `fixed` positioning we just use `rect.top`.",
+      "4. The `VerseBlock` uses `bg-primary/8` which isn't a valid Tailwind v4 class (should be `bg-primary/[0.08]`).",
+      "5. The `NotesPanel` on mobile needs a cleaner toggle with a slide/show rather than just `hidden`.",
+      "6. The `NoteEditor` modal `backdrop-blur` class needs a valid value.",
+      "7. The toolbar label logic splits on space to get first word — better to use explicit short labels.",
+      "8. The `BibleReaderPage` layout needs the reading column to be properly centered when the panel is hidden.",
+      "Let me rewrite all five component files properly:Now rewrite the main page with corrected layout — `flex-1 mx-auto` centering, a mobile notes drawer toggle that actually shows the panel label, and proper `onMouseDown` dismiss for the toolbar:Here is a summary of every change made and why:",
+      "**`useBibleSelection`** — Switched from document-relative `top + scrollY` to pure viewport-relative (`rect.top`) so the toolbar uses `position: fixed` cleanly without scroll math errors. The verse-overlap boundary check logic is unchanged.",
+      "**`SelectionToolbar`** — Replaced the `absolute` positioning + inline `style.top` with `position: fixed` via an inline `style` object (necessary because Tailwind purges arbitrary `top`/`left` values that come from runtime state). The CSS triangle caret is now rendered via an inline `style` object to avoid Tailwind utility conflicts, and button labels are explicit strings rather than splitting on spaces. The `Cancel` button is icon-only on the pill to save space."
+    ]
+  },
+  "raw": {
+    "id": "mNm3V8FIcZQ",
+    "object": "chat",
+    "shareable": false,
+    "privacy": "private",
+    "name": "Bible reader UI",
+    "title": "Bible reader UI",
+    "createdAt": "2026-03-27T23:22:37.367Z",
+    "updatedAt": "2026-03-27T23:51:36.485Z",
+    "favorite": false,
+    "authorId": "qIT5RQnUGg8IWdZlZQkMn5YF",
+    "projectId": "G2Csj5JSpB5",
+    "webUrl": "https://v0.app/chat/mNm3V8FIcZQ",
+    "apiUrl": "https://api.v0.dev/v1/chats/mNm3V8FIcZQ",
+    "latestVersion": {
+      "id": "b_WdjnCtOXcqR",
+      "object": "version",
+      "status": "completed",
+      "demoUrl": "https://demo-kzmlp1xojpe1rdtvw18y.vusercontent.net?__v0_token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..E-SM8bSeK59dexcM.E6IY_FWIOd4u9YmX2lS0nvkT1cQKGGGmP4pwVZ-Mw9sa9R9plmAtAkrVrqWn9jQfYC0i2Hamj0lRCSoQBvZJmDJyEh7qd_14qQZoiTqmf0nv9kyY0CTjgEBF9FSyz-Hh-ucu7fgPx4VhInABjZeG7xTat32qhel6b2c_GZutRZ1ChoNEcTwv8wWSEglbzVkzJfJ4rlSho8Tv2UTkTtTI6DmsaLKZHvGPbactB3F-YqjY2l4FahyTltysj5yAJh-NNb5P08Om79_rpA.mM91ha_nDT6FejiA25O2ag",
+      "screenshotUrl": "https://api.v0.dev/v1/chats/mNm3V8FIcZQ/versions/b_WdjnCtOXcqR/screenshot",
+      "createdAt": "2026-03-27T23:50:08.529Z",
+      "updatedAt": "2026-03-27T23:51:08.251Z",
+      "files": [
+        {
+          "object": "file",
+          "name": "app/globals.css",
+          "content": "@import 'tailwindcss';\n@import 'tw-animate-css';\n\n@custom-variant dark (&:is(.dark *));\n\n:root {\n  /* Warm parchment base — Bible reader palette */\n  --background: oklch(0.975 0.008 80);       /* warm off-white / parchment */\n  --foreground: oklch(0.22 0.018 50);        /* dark warm brown */\n  --card: oklch(0.99 0.006 80);\n  --card-foreground: oklch(0.22 0.018 50);\n  --popover: oklch(0.99 0.006 80);\n  --popover-foreground: oklch(0.22 0.018 50);\n  --primary: oklch(0.42 0.07 35);            /* warm chestnut / brick */\n  --primary-foreground: oklch(0.985 0 0);\n  --secondary: oklch(0.93 0.014 80);         /* warm light tan */\n  --secondary-foreground: oklch(0.3 0.02 50);\n  --muted: oklch(0.94 0.01 80);\n  --muted-foreground: oklch(0.5 0.02 60);\n  --accent: oklch(0.78 0.09 65);             /* warm amber accent */\n  --accent-foreground: oklch(0.18 0.02 50);\n  --destructive: oklch(0.577 0.245 27.325);\n  --destructive-foreground: oklch(0.985 0 0);\n  --border: oklch(0.875 0.016 75);\n  --input: oklch(0.92 0.012 78);\n  --ring: oklch(0.65 0.06 55);\n\n  /* Bible-specific tokens */\n  --verse-highlight: oklch(0.91 0.09 85);    /* warm amber highlight */\n  --verse-highlight-border: oklch(0.78 0.10 70);\n  --note-stripe: oklch(0.42 0.07 35);        /* matches primary */\n  --toolbar-bg: oklch(0.22 0.018 50);        /* dark toolbar */\n  --toolbar-fg: oklch(0.96 0.006 80);\n\n  --chart-1: oklch(0.646 0.222 41.116);\n  --chart-2: oklch(0.6 0.118 184.704);\n  --chart-3: oklch(0.398 0.07 227.392);\n  --chart-4: oklch(0.828 0.189 84.429);\n  --chart-5: oklch(0.769 0.188 70.08);\n  --radius: 0.5rem;\n  --sidebar: oklch(0.96 0.01 78);\n  --sidebar-foreground: oklch(0.22 0.018 50);\n  --sidebar-primary: oklch(0.42 0.07 35);\n  --sidebar-primary-foreground: oklch(0.985 0 0);\n  --sidebar-accent: oklch(0.93 0.014 80);\n  --sidebar-accent-foreground: oklch(0.3 0.02 50);\n  --sidebar-border: oklch(0.875 0.016 75);\n  --sidebar-ring: oklch(0.65 0.06 55);\n}\n\n.dark {\n  --background: oklch(0.145 0 0);\n  --foreground: oklch(0.985 0 0);\n  --card: oklch(0.145 0 0);\n  --card-foreground: oklch(0.985 0 0);\n  --popover: oklch(0.145 0 0);\n  --popover-foreground: oklch(0.985 0 0);\n  --primary: oklch(0.985 0 0);\n  --primary-foreground: oklch(0.205 0 0);\n  --secondary: oklch(0.269 0 0);\n  --secondary-foreground: oklch(0.985 0 0);\n  --muted: oklch(0.269 0 0);\n  --muted-foreground: oklch(0.708 0 0);\n  --accent: oklch(0.269 0 0);\n  --accent-foreground: oklch(0.985 0 0);\n  --destructive: oklch(0.396 0.141 25.723);\n  --destructive-foreground: oklch(0.637 0.237 25.331);\n  --border: oklch(0.269 0 0);\n  --input: oklch(0.269 0 0);\n  --ring: oklch(0.439 0 0);\n  --chart-1: oklch(0.488 0.243 264.376);\n  --chart-2: oklch(0.696 0.17 162.48);\n  --chart-3: oklch(0.769 0.188 70.08);\n  --chart-4: oklch(0.627 0.265 303.9);\n  --chart-5: oklch(0.645 0.246 16.439);\n  --sidebar: oklch(0.205 0 0);\n  --sidebar-foreground: oklch(0.985 0 0);\n  --sidebar-primary: oklch(0.488 0.243 264.376);\n  --sidebar-primary-foreground: oklch(0.985 0 0);\n  --sidebar-accent: oklch(0.269 0 0);\n  --sidebar-accent-foreground: oklch(0.985 0 0);\n  --sidebar-border: oklch(0.269 0 0);\n  --sidebar-ring: oklch(0.439 0 0);\n}\n\n@theme inline {\n  --font-sans: 'Lora', 'Georgia', serif;\n  --font-serif: 'Lora', 'Georgia', serif;\n  --font-mono: 'Geist Mono', 'Geist Mono Fallback';\n  --color-verse-highlight: var(--verse-highlight);\n  --color-verse-highlight-border: var(--verse-highlight-border);\n  --color-note-stripe: var(--note-stripe);\n  --color-toolbar-bg: var(--toolbar-bg);\n  --color-toolbar-fg: var(--toolbar-fg);\n  --color-background: var(--background);\n  --color-foreground: var(--foreground);\n  --color-card: var(--card);\n  --color-card-foreground: var(--card-foreground);\n  --color-popover: var(--popover);\n  --color-popover-foreground: var(--popover-foreground);\n  --color-primary: var(--primary);\n  --color-primary-foreground: var(--primary-foreground);\n  --color-secondary: var(--secondary);\n  --color-secondary-foreground: var(--secondary-foreground);\n  --color-muted: var(--muted);\n  --color-muted-foreground: var(--muted-foreground);\n  --color-accent: var(--accent);\n  --color-accent-foreground: var(--accent-foreground);\n  --color-destructive: var(--destructive);\n  --color-destructive-foreground: var(--destructive-foreground);\n  --color-border: var(--border);\n  --color-input: var(--input);\n  --color-ring: var(--ring);\n  --color-chart-1: var(--chart-1);\n  --color-chart-2: var(--chart-2);\n  --color-chart-3: var(--chart-3);\n  --color-chart-4: var(--chart-4);\n  --color-chart-5: var(--chart-5);\n  --radius-sm: calc(var(--radius) - 4px);\n  --radius-md: calc(var(--radius) - 2px);\n  --radius-lg: var(--radius);\n  --radius-xl: calc(var(--radius) + 4px);\n  --color-sidebar: var(--sidebar);\n  --color-sidebar-foreground: var(--sidebar-foreground);\n  --color-sidebar-primary: var(--sidebar-primary);\n  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);\n  --color-sidebar-accent: var(--sidebar-accent);\n  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);\n  --color-sidebar-border: var(--sidebar-border);\n  --color-sidebar-ring: var(--sidebar-ring);\n}\n\n@layer base {\n  * {\n    @apply border-border outline-ring/50;\n  }\n  body {\n    @apply bg-background text-foreground;\n  }\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "package.json",
+          "content": "{\n  \"name\": \"my-project\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"next dev\",\n    \"build\": \"next build\",\n    \"start\": \"next start\",\n    \"lint\": \"eslint .\"\n  },\n  \"dependencies\": {\n    \"@hookform/resolvers\": \"^3.9.1\",\n    \"@vercel/analytics\": \"1.6.1\",\n    \"@radix-ui/react-accordion\": \"1.2.12\",\n    \"@radix-ui/react-alert-dialog\": \"1.1.15\",\n    \"@radix-ui/react-aspect-ratio\": \"1.1.8\",\n    \"@radix-ui/react-avatar\": \"1.1.11\",\n    \"@radix-ui/react-checkbox\": \"1.3.3\",\n    \"@radix-ui/react-collapsible\": \"1.1.12\",\n    \"@radix-ui/react-context-menu\": \"2.2.16\",\n    \"@radix-ui/react-dialog\": \"1.1.15\",\n    \"@radix-ui/react-dropdown-menu\": \"2.1.16\",\n    \"@radix-ui/react-hover-card\": \"1.1.15\",\n    \"@radix-ui/react-label\": \"2.1.8\",\n    \"@radix-ui/react-menubar\": \"1.1.16\",\n    \"@radix-ui/react-navigation-menu\": \"1.2.14\",\n    \"@radix-ui/react-popover\": \"1.1.15\",\n    \"@radix-ui/react-progress\": \"1.1.8\",\n    \"@radix-ui/react-radio-group\": \"1.3.8\",\n    \"@radix-ui/react-scroll-area\": \"1.2.10\",\n    \"@radix-ui/react-select\": \"2.2.6\",\n    \"@radix-ui/react-separator\": \"1.1.8\",\n    \"@radix-ui/react-slider\": \"1.3.6\",\n    \"@radix-ui/react-slot\": \"1.2.4\",\n    \"@radix-ui/react-switch\": \"1.2.6\",\n    \"@radix-ui/react-tabs\": \"1.1.13\",\n    \"@radix-ui/react-toast\": \"1.2.15\",\n    \"@radix-ui/react-toggle\": \"1.1.10\",\n    \"@radix-ui/react-toggle-group\": \"1.1.11\",\n    \"@radix-ui/react-tooltip\": \"1.2.8\",\n    \"autoprefixer\": \"^10.4.20\",\n    \"class-variance-authority\": \"^0.7.1\",\n    \"clsx\": \"^2.1.1\",\n    \"cmdk\": \"1.1.1\",\n    \"date-fns\": \"4.1.0\",\n    \"embla-carousel-react\": \"8.6.0\",\n    \"input-otp\": \"1.4.2\",\n    \"lucide-react\": \"^0.564.0\",\n    \"next\": \"16.2.0\",\n    \"next-themes\": \"^0.4.6\",\n    \"react\": \"19.2.4\",\n    \"react-day-picker\": \"9.13.2\",\n    \"react-dom\": \"19.2.4\",\n    \"react-hook-form\": \"^7.54.1\",\n    \"react-resizable-panels\": \"^2.1.7\",\n    \"recharts\": \"2.15.0\",\n    \"sonner\": \"^1.7.1\",\n    \"tailwind-merge\": \"^3.3.1\",\n    \"vaul\": \"^1.1.2\",\n    \"zod\": \"^3.24.1\",\n    \"tailwindcss-animate\": \"1.0.7\"\n  },\n  \"devDependencies\": {\n    \"@tailwindcss/postcss\": \"^4.2.0\",\n    \"@types/node\": \"^22\",\n    \"@types/react\": \"19.2.14\",\n    \"@types/react-dom\": \"19.2.3\",\n    \"postcss\": \"^8.5\",\n    \"tailwindcss\": \"^4.2.0\",\n    \"tw-animate-css\": \"1.3.3\",\n    \"typescript\": \"5.7.3\"\n  }\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "app/layout.tsx",
+          "content": "import type { Metadata } from 'next'\nimport { Lora, Geist_Mono } from 'next/font/google'\nimport { Analytics } from '@vercel/analytics/next'\nimport './globals.css'\n\nconst _lora = Lora({ subsets: [\"latin\"], variable: \"--font-lora\" });\nconst _geistMono = Geist_Mono({ subsets: [\"latin\"] });\n\nexport const metadata: Metadata = {\n  title: 'Scripture Reader',\n  description: 'A focused Bible reading experience with highlights and notes.',\n  generator: 'v0.app',\n  icons: {\n    icon: [\n      {\n        url: '/icon-light-32x32.png',\n        media: '(prefers-color-scheme: light)',\n      },\n      {\n        url: '/icon-dark-32x32.png',\n        media: '(prefers-color-scheme: dark)',\n      },\n      {\n        url: '/icon.svg',\n        type: 'image/svg+xml',\n      },\n    ],\n    apple: '/apple-icon.png',\n  },\n}\n\nexport default function RootLayout({\n  children,\n}: Readonly<{\n  children: React.ReactNode\n}>) {\n  return (\n    <html lang=\"en\">\n      <body className=\"font-sans antialiased\">\n        {children}\n        <Analytics />\n      </body>\n    </html>\n  )\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "components/bible/selection-toolbar.tsx",
+          "content": "\"use client\";\n\n/**\n * SelectionToolbar\n *\n * A compact, pill-shaped floating toolbar that appears above a text selection.\n *\n * Positioning:\n *   Uses `position: fixed` with the viewport-relative coords from\n *   `useBibleSelection`. The toolbar is centred horizontally via\n *   `translate(-50%, 0)` and placed above the selection rect.\n *   A downward-pointing CSS caret sits at the bottom of the pill.\n *\n * Integration:\n *   const { toolbarPos, ... } = useBibleSelection();\n *   {toolbarPos && (\n *     <SelectionToolbar\n *       position={toolbarPos}\n *       onHighlight={handleHighlight}\n *       onAddNote={handleAddNote}\n *       onCancel={clearSelection}\n *     />\n *   )}\n *\n * Tailwind class reference:\n *   Wrapper:  fixed z-50 flex items-center gap-px rounded-lg overflow-visible\n *             bg-toolbar-bg text-toolbar-fg shadow-[0_4px_24px_rgba(0,0,0,0.4)]\n *             border border-white/10\n *   Button:   flex items-center gap-1.5 px-3 py-2 text-xs font-medium\n *             transition-colors duration-100 cursor-pointer hover:bg-white/10\n *   Caret:    absolute -bottom-[5px] left-1/2 -translate-x-1/2\n *             border-l-[5px] border-l-transparent\n *             border-r-[5px] border-r-transparent\n *             border-t-[5px] border-t-toolbar-bg\n *             (pure-CSS downward triangle)\n */\n\nimport { Highlighter, StickyNote, X } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\nimport type { ToolbarPosition } from \"@/hooks/use-bible-selection\";\n\ninterface SelectionToolbarProps {\n  /** Fixed (viewport-relative) coordinates from useBibleSelection */\n  position: ToolbarPosition;\n  onHighlight: () => void;\n  onAddNote: () => void;\n  onCancel: () => void;\n  className?: string;\n}\n\nexport function SelectionToolbar({\n  position,\n  onHighlight,\n  onAddNote,\n  onCancel,\n  className,\n}: SelectionToolbarProps) {\n  return (\n    <div\n      role=\"toolbar\"\n      aria-label=\"Selection actions\"\n      style={{\n        position: \"fixed\",\n        top: position.top,\n        left: position.left,\n        transform: \"translate(-50%, 0)\",\n      }}\n      className={cn(\n        \"z-50 flex items-center gap-px\",\n        \"rounded-lg overflow-visible\",\n        \"bg-toolbar-bg text-toolbar-fg\",\n        \"shadow-[0_4px_24px_rgba(0,0,0,0.45)]\",\n        \"border border-white/10\",\n        \"animate-in fade-in zoom-in-95 duration-100\",\n        className\n      )}\n    >\n      {/* Downward-pointing caret — CSS border triangle trick */}\n      <span\n        aria-hidden=\"true\"\n        style={{\n          position: \"absolute\",\n          bottom: \"-5px\",\n          left: \"50%\",\n          transform: \"translateX(-50%)\",\n          width: 0,\n          height: 0,\n          borderLeft: \"5px solid transparent\",\n          borderRight: \"5px solid transparent\",\n          borderTop: \"5px solid var(--toolbar-bg)\",\n          pointerEvents: \"none\",\n        }}\n      />\n\n      <ToolbarButton\n        icon={<Highlighter size={13} strokeWidth={2} aria-hidden=\"true\" />}\n        label=\"Highlight\"\n        onClick={onHighlight}\n        hoverClass=\"hover:bg-amber-700/60\"\n      />\n\n      <Divider />\n\n      <ToolbarButton\n        icon={<StickyNote size={13} strokeWidth={2} aria-hidden=\"true\" />}\n        label=\"Add Note\"\n        onClick={onAddNote}\n        hoverClass=\"hover:bg-primary/50\"\n      />\n\n      <Divider />\n\n      <ToolbarButton\n        icon={<X size={13} strokeWidth={2.5} aria-hidden=\"true\" />}\n        label=\"Cancel\"\n        onClick={onCancel}\n        hoverClass=\"hover:bg-white/10\"\n        iconOnly\n      />\n    </div>\n  );\n}\n\n/* ─── Internal pieces ────────────────────────────────────────────────────── */\n\nfunction Divider() {\n  return (\n    <span\n      aria-hidden=\"true\"\n      className=\"w-px h-5 bg-white/15 shrink-0\"\n    />\n  );\n}\n\ninterface ToolbarButtonProps {\n  icon: React.ReactNode;\n  label: string;\n  onClick: () => void;\n  hoverClass?: string;\n  /** Show only the icon (still has an accessible label) */\n  iconOnly?: boolean;\n}\n\nfunction ToolbarButton({\n  icon,\n  label,\n  onClick,\n  hoverClass = \"hover:bg-white/10\",\n  iconOnly = false,\n}: ToolbarButtonProps) {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      title={label}\n      onClick={onClick}\n      className={cn(\n        \"flex items-center gap-1.5 whitespace-nowrap\",\n        \"px-3 py-2 text-xs font-medium font-sans leading-none\",\n        \"transition-colors duration-100 cursor-pointer\",\n        \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40\",\n        hoverClass\n      )}\n    >\n      {icon}\n      {!iconOnly && <span>{label}</span>}\n    </button>\n  );\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "components/bible/verse-block.tsx",
+          "content": "\"use client\";\n\n/**\n * VerseBlock\n *\n * Renders a single Bible verse. Supports four visual states:\n *\n *   Default:     Plain text with a muted verse number\n *   Highlighted: Warm amber wash + left accent border\n *   Selected:    Subtle primary tint during an active drag selection\n *   Has Note:    A small dot indicator inline after the verse text\n *\n * Every block must receive `number` and carry `data-verse={number}` so that\n * `useBibleSelection` can detect which verses fall inside a text selection.\n *\n * Tailwind class reference:\n *   Base:        pl-6 pr-2 py-1.5 rounded-sm font-serif text-base leading-relaxed\n *                text-foreground transition-colors duration-150 cursor-text select-text\n *   Highlighted: bg-verse-highlight border-l-[3px] border-verse-highlight-border pl-5\n *   Selected:    bg-primary/[0.07] ring-1 ring-inset ring-primary/30\n *   Number:      text-[0.65rem] font-semibold font-sans tabular-nums select-none\n *   Note dot:    inline-block w-1.5 h-1.5 rounded-full bg-note-stripe opacity-75\n */\n\nimport { cn } from \"@/lib/utils\";\n\nexport interface VerseBlockProps {\n  number: number;\n  text: string;\n  highlighted?: boolean;\n  selected?: boolean;\n  hasNote?: boolean;\n  className?: string;\n}\n\nexport function VerseBlock({\n  number,\n  text,\n  highlighted = false,\n  selected = false,\n  hasNote = false,\n  className,\n}: VerseBlockProps) {\n  return (\n    <p\n      data-verse={number}\n      className={cn(\n        // Base layout & typography\n        \"relative pl-6 pr-2 py-1.5 rounded-sm\",\n        \"font-serif text-base leading-relaxed text-foreground\",\n        \"transition-colors duration-150 cursor-text select-text\",\n        // Highlighted state — amber wash with left accent border\n        highlighted && [\n          \"bg-verse-highlight\",\n          \"border-l-[3px] border-verse-highlight-border\",\n          \"pl-5\", // offset the 3px border so text stays aligned\n        ],\n        // Active drag-selection state — only show when not already highlighted\n        selected && !highlighted && [\n          \"bg-primary/[0.07]\",\n          \"ring-1 ring-inset ring-primary/25\",\n        ],\n        className\n      )}\n    >\n      {/* Verse number */}\n      <sup\n        className={cn(\n          \"mr-1.5 text-[0.65rem] font-semibold font-sans tabular-nums select-none\",\n          highlighted ? \"text-note-stripe\" : \"text-muted-foreground\"\n        )}\n        aria-label={`Verse ${number}`}\n      >\n        {number}\n      </sup>\n\n      {text}\n\n      {/* Note indicator dot */}\n      {hasNote && (\n        <span\n          role=\"img\"\n          aria-label=\"Has a note\"\n          title=\"This verse has a note\"\n          className={cn(\n            \"inline-block ml-1.5 mb-0.5 align-middle shrink-0\",\n            \"w-1.5 h-1.5 rounded-full\",\n            \"bg-note-stripe opacity-75\"\n          )}\n        />\n      )}\n    </p>\n  );\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "components/bible/note-card.tsx",
+          "content": "\"use client\";\n\n/**\n * NoteCard\n *\n * A single note entry displayed in the NotesPanel. Shows:\n *   - Left accent stripe (matching the verse highlight colour)\n *   - Verse reference badge (e.g. \"v. 3–4\")\n *   - Quoted selected-text preview (truncated, italic)\n *   - Note body text (clamped to 3 lines)\n *   - Edit / Delete icon buttons (reveal on hover / focus-within)\n *\n * Tailwind class reference:\n *   Card:      group relative flex flex-col gap-2 rounded-md border border-border\n *              bg-card p-3 transition-shadow duration-150 hover:shadow-sm\n *   Stripe:    absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-note-stripe\n *   Badge:     inline-flex items-center px-1.5 py-0.5 rounded\n *              text-[0.65rem] font-sans font-semibold tracking-wide uppercase\n *              bg-secondary text-secondary-foreground\n *   Actions:   opacity-0 group-hover:opacity-100 group-focus-within:opacity-100\n *              transition-opacity duration-150\n *   Quote:     pl-3 ml-px border-l-2 border-verse-highlight-border\n *              text-xs italic text-muted-foreground leading-relaxed line-clamp-2\n */\n\nimport { Pencil, Trash2 } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface NoteCardProps {\n  id: string;\n  verseRef: string;\n  selectedText: string;\n  noteText: string;\n  onEdit: () => void;\n  onDelete: () => void;\n  className?: string;\n}\n\nexport function NoteCard({\n  id: _id,\n  verseRef,\n  selectedText,\n  noteText,\n  onEdit,\n  onDelete,\n  className,\n}: NoteCardProps) {\n  return (\n    <article\n      aria-label={`Note for ${verseRef}`}\n      className={cn(\n        \"group relative flex flex-col gap-2\",\n        \"rounded-md border border-border bg-card p-3\",\n        \"transition-shadow duration-150 hover:shadow-sm\",\n        className\n      )}\n    >\n      {/* Left accent stripe */}\n      <span\n        aria-hidden=\"true\"\n        className=\"absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-note-stripe\"\n      />\n\n      {/* Header: verse badge + action buttons */}\n      <div className=\"flex items-center justify-between gap-2 pl-3\">\n        <span\n          className={cn(\n            \"inline-flex items-center px-1.5 py-0.5 rounded\",\n            \"text-[0.65rem] font-sans font-semibold tracking-wide uppercase\",\n            \"bg-secondary text-secondary-foreground shrink-0\"\n          )}\n        >\n          {verseRef}\n        </span>\n\n        {/* Reveal on hover / keyboard focus */}\n        <div\n          role=\"group\"\n          aria-label=\"Note actions\"\n          className={cn(\n            \"flex items-center gap-0.5\",\n            \"opacity-0 group-hover:opacity-100 group-focus-within:opacity-100\",\n            \"transition-opacity duration-150\"\n          )}\n        >\n          <NoteIconButton\n            icon={<Pencil size={12} strokeWidth={2} aria-hidden=\"true\" />}\n            label={`Edit note for ${verseRef}`}\n            onClick={onEdit}\n            className=\"hover:text-primary\"\n          />\n          <NoteIconButton\n            icon={<Trash2 size={12} strokeWidth={2} aria-hidden=\"true\" />}\n            label={`Delete note for ${verseRef}`}\n            onClick={onDelete}\n            className=\"hover:text-destructive\"\n          />\n        </div>\n      </div>\n\n      {/* Selected-text quote */}\n      {selectedText && (\n        <blockquote\n          className={cn(\n            \"pl-3 ml-px border-l-2 border-verse-highlight-border\",\n            \"text-xs italic text-muted-foreground leading-relaxed line-clamp-2\"\n          )}\n        >\n          &ldquo;{selectedText}&rdquo;\n        </blockquote>\n      )}\n\n      {/* Note body */}\n      <p className=\"pl-3 text-sm leading-relaxed text-foreground line-clamp-3 font-sans\">\n        {noteText}\n      </p>\n    </article>\n  );\n}\n\n/* ─── Icon button ────────────────────────────────────────────────────────── */\n\ninterface NoteIconButtonProps {\n  icon: React.ReactNode;\n  label: string;\n  onClick: () => void;\n  className?: string;\n}\n\nfunction NoteIconButton({ icon, label, onClick, className }: NoteIconButtonProps) {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      title={label}\n      onClick={onClick}\n      className={cn(\n        \"p-1.5 rounded text-muted-foreground\",\n        \"transition-colors duration-100 cursor-pointer\",\n        \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\",\n        className\n      )}\n    >\n      {icon}\n    </button>\n  );\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "components/bible/notes-panel.tsx",
+          "content": "\"use client\";\n\n/**\n * NotesPanel\n *\n * Right-side panel listing all reader notes for the current chapter.\n *\n * Responsive layout:\n *   md+  — Fixed-width right column (w-72 xl:w-80), sticky under the header,\n *           independently scrollable, full reader height.\n *   <md  — Stacks below the main reading column as a full-width section.\n *           Hidden when `open={false}` (controlled by the header toggle).\n *\n * Tailwind class reference:\n *   Aside wrapper:  \"shrink-0 bg-sidebar border-border\"\n *                   \"w-full md:w-72 xl:w-80\"         (width)\n *                   \"md:sticky md:top-14\"            (sticky on desktop)\n *                   \"md:min-h-[calc(100dvh-3.5rem)]\" (full height on desktop)\n *                   \"border-t md:border-t-0 md:border-l\" (border placement)\n *                   Mobile hidden: \"hidden md:flex\" when !open\n *   Scroll area:    \"flex-1 overflow-y-auto md:max-h-[calc(100dvh-7rem)]\"\n */\n\nimport { BookOpen, Plus } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\nimport { NoteCard, type NoteCardProps } from \"./note-card\";\n\nexport interface Note extends Omit<NoteCardProps, \"onEdit\" | \"onDelete\"> {}\n\ninterface NotesPanelProps {\n  chapterRef: string;\n  notes: Note[];\n  /** On mobile: whether the panel is visible (it always shows on md+) */\n  open?: boolean;\n  onAddNote?: () => void;\n  onEditNote: (id: string) => void;\n  onDeleteNote: (id: string) => void;\n  className?: string;\n}\n\nexport function NotesPanel({\n  chapterRef,\n  notes,\n  open = true,\n  onAddNote,\n  onEditNote,\n  onDeleteNote,\n  className,\n}: NotesPanelProps) {\n  return (\n    <aside\n      aria-label={`Notes for ${chapterRef}`}\n      className={cn(\n        // Layout\n        \"flex flex-col shrink-0\",\n        \"w-full md:w-72 xl:w-80\",\n        // Sticky on desktop — top aligns below the 3.5rem header\n        \"md:sticky md:top-14\",\n        \"md:min-h-[calc(100dvh-3.5rem)]\",\n        // Borders\n        \"border-t border-border md:border-t-0 md:border-l\",\n        // Surface\n        \"bg-sidebar\",\n        // Mobile visibility: always show on md+, conditionally on mobile\n        !open && \"hidden md:flex\",\n        className\n      )}\n    >\n      {/* ── Panel header ─────────────────────────────────────────────── */}\n      <header\n        className={cn(\n          \"sticky top-0 z-10 shrink-0\",\n          \"flex items-center justify-between gap-2\",\n          \"px-4 py-3\",\n          \"bg-sidebar border-b border-border\"\n        )}\n      >\n        <div className=\"flex items-center gap-2 min-w-0\">\n          <BookOpen\n            size={14}\n            strokeWidth={2}\n            className=\"text-primary shrink-0\"\n            aria-hidden=\"true\"\n          />\n          <h2 className=\"text-sm font-semibold font-sans text-foreground truncate\">\n            Notes\n            <span className=\"ml-1.5 font-normal text-muted-foreground\">\n              &mdash; {chapterRef}\n            </span>\n          </h2>\n        </div>\n\n        {onAddNote && (\n          <button\n            type=\"button\"\n            aria-label=\"Add new note\"\n            title=\"Add new note\"\n            onClick={onAddNote}\n            className={cn(\n              \"flex items-center gap-1 px-2 py-1 rounded shrink-0\",\n              \"text-xs font-medium font-sans\",\n              \"bg-primary text-primary-foreground\",\n              \"hover:bg-primary/85 transition-colors duration-100 cursor-pointer\",\n              \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n            )}\n          >\n            <Plus size={12} strokeWidth={2.5} aria-hidden=\"true\" />\n            Add\n          </button>\n        )}\n      </header>\n\n      {/* ── Note list / empty state ───────────────────────────────────── */}\n      <div\n        className={cn(\n          \"flex-1 overflow-y-auto\",\n          // Cap height on desktop so it doesn't overflow the viewport\n          \"md:max-h-[calc(100dvh-7rem)]\",\n          \"p-3 flex flex-col gap-2.5\"\n        )}\n      >\n        {notes.length === 0 ? (\n          <PanelEmptyState />\n        ) : (\n          notes.map((note) => (\n            <NoteCard\n              key={note.id}\n              {...note}\n              onEdit={() => onEditNote(note.id)}\n              onDelete={() => onDeleteNote(note.id)}\n            />\n          ))\n        )}\n      </div>\n    </aside>\n  );\n}\n\n/* ─── Empty state ────────────────────────────────────────────────────────── */\n\nfunction PanelEmptyState() {\n  return (\n    <div\n      className=\"flex flex-col items-center justify-center gap-2 py-12 px-4 text-center\"\n      aria-live=\"polite\"\n    >\n      <span\n        aria-hidden=\"true\"\n        className={cn(\n          \"flex items-center justify-center w-10 h-10 rounded-full\",\n          \"bg-secondary text-muted-foreground\"\n        )}\n      >\n        <BookOpen size={18} strokeWidth={1.5} />\n      </span>\n      <p className=\"text-sm font-semibold font-sans text-foreground\">\n        No notes yet\n      </p>\n      <p className=\"text-xs text-muted-foreground leading-relaxed max-w-[15rem]\">\n        Select any verse text, then choose{\" \"}\n        <span className=\"font-medium text-foreground\">Add Note</span> from the\n        toolbar.\n      </p>\n    </div>\n  );\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "components/bible/note-editor.tsx",
+          "content": "\"use client\";\n\n/**\n * NoteEditor\n *\n * Centred modal overlay for creating or editing a reader note.\n *\n * Features:\n *   - Read-only quoted verse preview above the textarea\n *   - Auto-focuses textarea on mount\n *   - Closes on Escape or clicking the backdrop\n *   - Works for both create (no initialText) and edit (initialText provided)\n *\n * Tailwind class reference:\n *   Backdrop:  fixed inset-0 z-[60] flex items-center justify-center p-4\n *   Scrim:     absolute inset-0 bg-foreground/25\n *   Dialog:    relative z-10 w-full max-w-md flex flex-col gap-4 rounded-xl\n *              bg-card border border-border shadow-2xl p-5\n *   Quote:     border-l-[3px] border-verse-highlight-border pl-3\n *              text-xs italic text-muted-foreground leading-relaxed\n *              bg-verse-highlight/40 py-1.5 pr-2 rounded-r-sm line-clamp-3\n *   Textarea:  w-full resize-none rounded-md border border-input bg-background\n *              px-3 py-2 text-sm font-sans leading-relaxed\n *              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60\n */\n\nimport { useEffect, useRef } from \"react\";\nimport { X } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\n\ninterface NoteEditorProps {\n  verseRef: string;\n  selectedText: string;\n  initialText?: string;\n  onSave: (text: string) => void;\n  onClose: () => void;\n}\n\nexport function NoteEditor({\n  verseRef,\n  selectedText,\n  initialText = \"\",\n  onSave,\n  onClose,\n}: NoteEditorProps) {\n  const textareaRef = useRef<HTMLTextAreaElement>(null);\n\n  /* Auto-focus on open */\n  useEffect(() => {\n    textareaRef.current?.focus();\n    // Place cursor at end for edits\n    const len = textareaRef.current?.value.length ?? 0;\n    textareaRef.current?.setSelectionRange(len, len);\n  }, []);\n\n  /* Escape to close */\n  useEffect(() => {\n    const onKeyDown = (e: KeyboardEvent) => {\n      if (e.key === \"Escape\") onClose();\n    };\n    document.addEventListener(\"keydown\", onKeyDown);\n    return () => document.removeEventListener(\"keydown\", onKeyDown);\n  }, [onClose]);\n\n  const handleSave = () => {\n    const value = textareaRef.current?.value.trim() ?? \"\";\n    if (value) onSave(value);\n  };\n\n  const isEditing = Boolean(initialText);\n\n  return (\n    /* Full-screen backdrop */\n    <div\n      role=\"presentation\"\n      className=\"fixed inset-0 z-[60] flex items-center justify-center p-4\"\n      onClick={(e) => {\n        if (e.target === e.currentTarget) onClose();\n      }}\n    >\n      {/* Scrim */}\n      <div\n        aria-hidden=\"true\"\n        className=\"absolute inset-0 bg-foreground/25\"\n      />\n\n      {/* Dialog */}\n      <div\n        role=\"dialog\"\n        aria-modal=\"true\"\n        aria-labelledby=\"note-editor-title\"\n        className={cn(\n          \"relative z-10 w-full max-w-md\",\n          \"flex flex-col gap-4\",\n          \"rounded-xl bg-card border border-border shadow-2xl\",\n          \"p-5\",\n          \"animate-in fade-in zoom-in-95 duration-150\"\n        )}\n      >\n        {/* Header */}\n        <div className=\"flex items-start justify-between gap-3\">\n          <h2\n            id=\"note-editor-title\"\n            className=\"text-sm font-semibold font-sans text-foreground\"\n          >\n            {isEditing ? \"Edit note\" : \"Add note\"}\n            {verseRef && (\n              <span className=\"ml-1.5 font-normal text-muted-foreground\">\n                &mdash; {verseRef}\n              </span>\n            )}\n          </h2>\n\n          <button\n            type=\"button\"\n            aria-label=\"Close note editor\"\n            onClick={onClose}\n            className={cn(\n              \"p-1 rounded text-muted-foreground shrink-0\",\n              \"hover:bg-secondary hover:text-foreground\",\n              \"transition-colors duration-100 cursor-pointer\",\n              \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n            )}\n          >\n            <X size={15} strokeWidth={2} aria-hidden=\"true\" />\n          </button>\n        </div>\n\n        {/* Verse quote preview */}\n        {selectedText && (\n          <blockquote\n            className={cn(\n              \"border-l-[3px] border-verse-highlight-border\",\n              \"pl-3 py-1.5 pr-2 rounded-r-sm\",\n              \"bg-verse-highlight/40\",\n              \"text-xs italic text-muted-foreground leading-relaxed line-clamp-3\"\n            )}\n          >\n            &ldquo;{selectedText}&rdquo;\n          </blockquote>\n        )}\n\n        {/* Textarea */}\n        <textarea\n          ref={textareaRef}\n          defaultValue={initialText}\n          placeholder=\"Write your note here...\"\n          rows={4}\n          className={cn(\n            \"w-full resize-none rounded-md\",\n            \"border border-input bg-background\",\n            \"px-3 py-2 text-sm text-foreground font-sans leading-relaxed\",\n            \"placeholder:text-muted-foreground\",\n            \"transition-shadow duration-150\",\n            \"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60\"\n          )}\n        />\n\n        {/* Actions */}\n        <div className=\"flex items-center justify-end gap-2\">\n          <button\n            type=\"button\"\n            onClick={onClose}\n            className={cn(\n              \"px-3 py-1.5 rounded-md text-sm font-medium font-sans\",\n              \"bg-secondary text-secondary-foreground\",\n              \"hover:bg-secondary/70 transition-colors duration-100 cursor-pointer\",\n              \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n            )}\n          >\n            Cancel\n          </button>\n          <button\n            type=\"button\"\n            onClick={handleSave}\n            className={cn(\n              \"px-3 py-1.5 rounded-md text-sm font-medium font-sans\",\n              \"bg-primary text-primary-foreground\",\n              \"hover:bg-primary/85 transition-colors duration-100 cursor-pointer\",\n              \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n            )}\n          >\n            {isEditing ? \"Save changes\" : \"Save note\"}\n          </button>\n        </div>\n      </div>\n    </div>\n  );\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "app/page.tsx",
+          "content": "import { redirect } from \"next/navigation\";\n\nexport default function RootPage() {\n  redirect(\"/bible\");\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "hooks/use-bible-selection.tsx",
+          "content": "\"use client\";\n\n/**\n * useBibleSelection\n *\n * Tracks multi-verse text selection within a reading container and computes\n * the floating toolbar position using fixed coordinates (viewport-relative).\n *\n * Usage:\n *   const { selectedVerses, selectedText, toolbarPos, clearSelection, onContainerMouseUp }\n *     = useBibleSelection();\n *\n *   Attach `onContainerMouseUp` to the <main> reading element.\n *   Pass `toolbarPos` to <SelectionToolbar position={toolbarPos} />.\n *   Each verse element must have a `data-verse={number}` attribute.\n */\n\nimport { useState, useCallback } from \"react\";\n\nexport interface ToolbarPosition {\n  /** Fixed (viewport-relative) top, in px — position toolbar above this point */\n  top: number;\n  /** Fixed (viewport-relative) left, in px — centred on selection midpoint */\n  left: number;\n}\n\nexport interface BibleSelection {\n  selectedVerses: Set<number>;\n  selectedText: string;\n  toolbarPos: ToolbarPosition | null;\n  clearSelection: () => void;\n  onContainerMouseUp: (e: React.MouseEvent<HTMLElement>) => void;\n}\n\n/** Height of toolbar (px) + gap above the selection rect */\nconst TOOLBAR_OFFSET = 52;\n\nexport function useBibleSelection(): BibleSelection {\n  const [selectedVerses, setSelectedVerses] = useState<Set<number>>(new Set());\n  const [selectedText, setSelectedText] = useState(\"\");\n  const [toolbarPos, setToolbarPos] = useState<ToolbarPosition | null>(null);\n\n  const clearSelection = useCallback(() => {\n    setSelectedVerses(new Set());\n    setSelectedText(\"\");\n    setToolbarPos(null);\n    window.getSelection()?.removeAllRanges();\n  }, []);\n\n  const onContainerMouseUp = useCallback((e: React.MouseEvent<HTMLElement>) => {\n    // Defer so the browser finalises the selection range first\n    requestAnimationFrame(() => {\n      const selection = window.getSelection();\n\n      if (!selection || selection.isCollapsed || selection.rangeCount === 0) {\n        return;\n      }\n\n      const text = selection.toString().trim();\n      if (!text) return;\n\n      /* ── Collect verse numbers overlapping the selection ────────── */\n      const range = selection.getRangeAt(0);\n      const container = e.currentTarget;\n      const verseEls = container.querySelectorAll<HTMLElement>(\"[data-verse]\");\n\n      const hitVerses = new Set<number>();\n      verseEls.forEach((el) => {\n        const elRange = document.createRange();\n        elRange.selectNodeContents(el);\n        // Verses whose content overlaps the selected range\n        const startsBeforeEnd =\n          range.compareBoundaryPoints(Range.END_TO_START, elRange) < 0;\n        const endsAfterStart =\n          range.compareBoundaryPoints(Range.START_TO_END, elRange) > 0;\n        if (startsBeforeEnd && endsAfterStart) {\n          const num = parseInt(el.dataset.verse ?? \"0\", 10);\n          if (num > 0) hitVerses.add(num);\n        }\n      });\n\n      setSelectedVerses(hitVerses);\n      setSelectedText(text);\n\n      /* ── Toolbar position: centred above the selection rect ──────── */\n      const rect = range.getBoundingClientRect();\n      // Use fixed positioning — top/left are viewport-relative\n      setToolbarPos({\n        top: rect.top - TOOLBAR_OFFSET,\n        left: rect.left + rect.width / 2,\n      });\n    });\n  }, []);\n\n  return {\n    selectedVerses,\n    selectedText,\n    toolbarPos,\n    clearSelection,\n    onContainerMouseUp,\n  };\n}\n",
+          "locked": false
+        },
+        {
+          "object": "file",
+          "name": "app/bible/page.tsx",
+          "content": "\"use client\";\n\n/**\n * /app/bible/page.tsx  — Bible Reader\n *\n * Component tree:\n *   BiblePage\n *   ├─ ReaderHeader        sticky top bar: breadcrumb, translation badge, notes toggle\n *   ├─ (main content row)\n *   │   ├─ ReadingColumn   centred prose column with VerseBlock × N + chapter nav\n *   │   └─ NotesPanel      right sidebar (md+) / stacked section (<md)\n *   ├─ SelectionToolbar    fixed floating pill above active text selection\n *   └─ NoteEditor          centred modal for create / edit\n *\n * Layout rules:\n *   Desktop: flex-row, reading column is max-w-2xl centred in remaining space,\n *            NotesPanel is sticky right sidebar w-72 xl:w-80.\n *   Mobile:  flex-col, NotesPanel collapses below the reading text and is\n *            toggled by the header button.\n */\n\nimport { useState, useCallback, useId } from \"react\";\nimport { BookOpen, ChevronLeft, ChevronRight, StickyNote } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\nimport { VerseBlock } from \"@/components/bible/verse-block\";\nimport { SelectionToolbar } from \"@/components/bible/selection-toolbar\";\nimport { NotesPanel, type Note } from \"@/components/bible/notes-panel\";\nimport { NoteEditor } from \"@/components/bible/note-editor\";\nimport { useBibleSelection } from \"@/hooks/use-bible-selection\";\n\n/* ─── Sample data ────────────────────────────────────────────────────────── */\n\nconst CHAPTER = { book: \"John\", chapter: 3 };\n\nconst VERSES = [\n  { number: 1,  text: \"There was a man of the Pharisees named Nicodemus, a ruler of the Jews.\" },\n  { number: 2,  text: \"This man came to Jesus by night and said to Him, \\\"Rabbi, we know that You are a teacher come from God; for no one can do these signs that You do unless God is with him.\\\"\" },\n  { number: 3,  text: \"Jesus answered and said to him, \\\"Most assuredly, I say to you, unless one is born again, he cannot see the kingdom of God.\\\"\" },\n  { number: 4,  text: \"Nicodemus said to Him, \\\"How can a man be born when he is old? Can he enter a second time into his mother's womb and be born?\\\"\" },\n  { number: 5,  text: \"Jesus answered, \\\"Most assuredly, I say to you, unless one is born of water and the Spirit, he cannot enter the kingdom of God.\\\"\" },\n  { number: 6,  text: \"That which is born of the flesh is flesh, and that which is born of the Spirit is spirit.\" },\n  { number: 7,  text: \"Do not marvel that I said to you, 'You must be born again.'\" },\n  { number: 8,  text: \"The wind blows where it wishes, and you hear the sound of it, but cannot tell where it comes from and where it goes. So is everyone who is born of the Spirit.\" },\n  { number: 9,  text: \"Nicodemus answered and said to Him, \\\"How can these things be?\\\"\" },\n  { number: 10, text: \"Jesus answered and said to him, \\\"Are you the teacher of Israel, and do not know these things?\\\"\" },\n  { number: 11, text: \"Most assuredly, I say to you, We speak what We know and testify what We have seen, and you do not receive Our witness.\" },\n  { number: 12, text: \"If I have told you earthly things and you do not believe, how will you believe if I tell you heavenly things?\" },\n  { number: 13, text: \"No one has ascended to heaven but He who came down from heaven, that is, the Son of Man who is in heaven.\" },\n  { number: 14, text: \"And as Moses lifted up the serpent in the wilderness, even so must the Son of Man be lifted up,\" },\n  { number: 15, text: \"that whoever believes in Him should not perish but have eternal life.\" },\n  { number: 16, text: \"For God so loved the world that He gave His only begotten Son, that whoever believes in Him should not perish but have everlasting life.\" },\n  { number: 17, text: \"For God did not send His Son into the world to condemn the world, but that the world through Him might be saved.\" },\n  { number: 18, text: \"He who believes in Him is not condemned; but he who does not believe is condemned already, because he has not believed in the name of the only begotten Son of God.\" },\n  { number: 19, text: \"And this is the condemnation, that the light has come into the world, and men loved darkness rather than light, because their deeds were evil.\" },\n  { number: 20, text: \"For everyone practicing evil hates the light and does not come to the light, lest his deeds should be exposed.\" },\n  { number: 21, text: \"But he who does the truth comes to the light, that his deeds may be clearly seen, that they have been done in God.\" },\n];\n\nconst INITIAL_NOTES: Note[] = [\n  {\n    id: \"n1\",\n    verseRef: \"v. 3\",\n    selectedText: \"unless one is born again, he cannot see the kingdom of God.\",\n    noteText: \"The Greek word 'anothen' means both 'again' and 'from above' — Nicodemus takes the earthly meaning, Jesus intends the heavenly.\",\n  },\n  {\n    id: \"n2\",\n    verseRef: \"v. 16\",\n    selectedText: \"For God so loved the world that He gave His only begotten Son\",\n    noteText: \"The hinge verse of the gospel. Scope: the whole world (kosmos). Cost: the only Son. Condition: belief. Result: not perish, but eternal life.\",\n  },\n];\n\n/* ─── Page ───────────────────────────────────────────────────────────────── */\n\nexport default function BiblePage() {\n  const {\n    selectedVerses,\n    selectedText,\n    toolbarPos,\n    clearSelection,\n    onContainerMouseUp,\n  } = useBibleSelection();\n\n  const [highlighted, setHighlighted] = useState<Set<number>>(new Set([16]));\n  const [notes, setNotes] = useState<Note[]>(INITIAL_NOTES);\n  const [notesPanelOpen, setNotesPanelOpen] = useState(true);\n\n  const [editorState, setEditorState] = useState<{\n    open: boolean;\n    editId?: string;\n    verseRef: string;\n    selectedText: string;\n    initialText: string;\n  }>({ open: false, verseRef: \"\", selectedText: \"\", initialText: \"\" });\n\n  const uid = useId();\n\n  /* ── Toolbar actions ──────────────────────────────────────────────────── */\n\n  const handleHighlight = useCallback(() => {\n    setHighlighted((prev) => {\n      const next = new Set(prev);\n      selectedVerses.forEach((v) => next.add(v));\n      return next;\n    });\n    clearSelection();\n  }, [selectedVerses, clearSelection]);\n\n  const handleAddNote = useCallback(() => {\n    if (!selectedVerses.size) return;\n    const sorted = [...selectedVerses].sort((a, b) => a - b);\n    const verseRef =\n      sorted.length === 1\n        ? `v. ${sorted[0]}`\n        : `v. ${sorted[0]}\\u2013${sorted[sorted.length - 1]}`;\n    setEditorState({ open: true, verseRef, selectedText, initialText: \"\" });\n  }, [selectedVerses, selectedText]);\n\n  /* ── Note CRUD ────────────────────────────────────────────────────────── */\n\n  const handleSaveNote = useCallback(\n    (text: string) => {\n      if (editorState.editId) {\n        setNotes((prev) =>\n          prev.map((n) =>\n            n.id === editorState.editId ? { ...n, noteText: text } : n\n          )\n        );\n      } else {\n        const newNote: Note = {\n          id: `${uid}-${Date.now()}`,\n          verseRef: editorState.verseRef,\n          selectedText: editorState.selectedText,\n          noteText: text,\n        };\n        setNotes((prev) => [...prev, newNote]);\n        // Auto-highlight the associated verses\n        const vNums = parseVerseRef(editorState.verseRef);\n        setHighlighted((prev) => {\n          const next = new Set(prev);\n          vNums.forEach((v) => next.add(v));\n          return next;\n        });\n      }\n      setEditorState((s) => ({ ...s, open: false, editId: undefined }));\n      clearSelection();\n    },\n    [editorState, uid, clearSelection]\n  );\n\n  const handleEditNote = useCallback(\n    (id: string) => {\n      const note = notes.find((n) => n.id === id);\n      if (!note) return;\n      setEditorState({\n        open: true,\n        editId: id,\n        verseRef: note.verseRef,\n        selectedText: note.selectedText,\n        initialText: note.noteText,\n      });\n    },\n    [notes]\n  );\n\n  const handleDeleteNote = useCallback((id: string) => {\n    setNotes((prev) => prev.filter((n) => n.id !== id));\n  }, []);\n\n  const chapterRef = `${CHAPTER.book} ${CHAPTER.chapter}`;\n\n  return (\n    <div className=\"flex flex-col min-h-dvh bg-background\">\n\n      {/* ── Sticky header ──────────────────────────────────────────────── */}\n      <ReaderHeader\n        chapterRef={chapterRef}\n        noteCount={notes.length}\n        notesPanelOpen={notesPanelOpen}\n        onToggleNotes={() => setNotesPanelOpen((v) => !v)}\n      />\n\n      {/* ── Content row ────────────────────────────────────────────────── */}\n      {/*\n        Desktop: flex-row — reading column grows to fill space left of panel.\n        Mobile:  flex-col — panel stacks below.\n      */}\n      <div className=\"flex flex-1 flex-col md:flex-row items-start\">\n\n        {/* Reading column */}\n        <main\n          className={cn(\n            \"flex-1 min-w-0\",\n            \"px-5 sm:px-8 lg:px-14 py-8\",\n            // Centre prose within the available column width\n            \"max-w-2xl mx-auto w-full\"\n          )}\n          // Dismiss floating toolbar when clicking outside a verse\n          onMouseUp={onContainerMouseUp}\n          onMouseDown={(e) => {\n            // Clear selection when clicking on the container itself (not a verse)\n            const target = e.target as HTMLElement;\n            if (!target.closest(\"[data-verse]\")) {\n              clearSelection();\n            }\n          }}\n        >\n          {/* Chapter heading */}\n          <header className=\"mb-8\">\n            <p className=\"text-[0.7rem] font-sans font-semibold tracking-widest uppercase text-muted-foreground mb-1\">\n              {CHAPTER.book}\n            </p>\n            <h1 className=\"font-serif text-4xl font-bold text-foreground text-balance leading-tight\">\n              Chapter {CHAPTER.chapter}\n            </h1>\n            <div className=\"mt-3 h-px bg-border\" aria-hidden=\"true\" />\n          </header>\n\n          {/* Verse list */}\n          <section\n            aria-label={`${chapterRef} — verse text`}\n            className=\"flex flex-col gap-0.5\"\n          >\n            {VERSES.map((v) => (\n              <VerseBlock\n                key={v.number}\n                number={v.number}\n                text={v.text}\n                highlighted={highlighted.has(v.number)}\n                selected={selectedVerses.has(v.number)}\n                hasNote={notes.some((n) =>\n                  parseVerseRef(n.verseRef).includes(v.number)\n                )}\n              />\n            ))}\n          </section>\n\n          {/* Chapter navigation */}\n          <nav\n            aria-label=\"Chapter navigation\"\n            className=\"mt-10 flex items-center justify-between\"\n          >\n            <ChapterNavButton\n              icon={<ChevronLeft size={15} aria-hidden=\"true\" />}\n              label=\"Previous chapter\"\n            />\n            <ChapterNavButton\n              icon={<ChevronRight size={15} aria-hidden=\"true\" />}\n              label=\"Next chapter\"\n              iconAfter\n            />\n          </nav>\n        </main>\n\n        {/* Notes panel */}\n        <NotesPanel\n          chapterRef={chapterRef}\n          notes={notes}\n          open={notesPanelOpen}\n          onAddNote={() =>\n            setEditorState({\n              open: true,\n              verseRef: \"\",\n              selectedText: \"\",\n              initialText: \"\",\n            })\n          }\n          onEditNote={handleEditNote}\n          onDeleteNote={handleDeleteNote}\n        />\n      </div>\n\n      {/* ── Floating selection toolbar ──────────────────────────────────── */}\n      {toolbarPos && (\n        <SelectionToolbar\n          position={toolbarPos}\n          onHighlight={handleHighlight}\n          onAddNote={handleAddNote}\n          onCancel={clearSelection}\n        />\n      )}\n\n      {/* ── Note editor modal ───────────────────────────────────────────── */}\n      {editorState.open && (\n        <NoteEditor\n          verseRef={editorState.verseRef || \"General\"}\n          selectedText={editorState.selectedText}\n          initialText={editorState.initialText}\n          onSave={handleSaveNote}\n          onClose={() =>\n            setEditorState((s) => ({ ...s, open: false, editId: undefined }))\n          }\n        />\n      )}\n    </div>\n  );\n}\n\n/* ─── ReaderHeader ───────────────────────────────────────────────────────── */\n\ninterface ReaderHeaderProps {\n  chapterRef: string;\n  noteCount: number;\n  notesPanelOpen: boolean;\n  onToggleNotes: () => void;\n}\n\nfunction ReaderHeader({\n  chapterRef,\n  noteCount,\n  notesPanelOpen,\n  onToggleNotes,\n}: ReaderHeaderProps) {\n  return (\n    <header\n      className={cn(\n        \"sticky top-0 z-30 shrink-0 h-14\",\n        \"flex items-center justify-between gap-4\",\n        \"px-5 sm:px-8\",\n        \"bg-background/95 backdrop-blur-sm border-b border-border\"\n      )}\n    >\n      {/* Breadcrumb */}\n      <div className=\"flex items-center gap-2 min-w-0\">\n        <BookOpen\n          size={17}\n          strokeWidth={1.5}\n          className=\"text-primary shrink-0\"\n          aria-hidden=\"true\"\n        />\n        <span className=\"font-sans text-sm font-semibold text-foreground truncate\">\n          {chapterRef}\n        </span>\n      </div>\n\n      {/* Right controls */}\n      <div className=\"flex items-center gap-2\">\n        {/* Translation badge */}\n        <span\n          className={cn(\n            \"hidden sm:inline-flex items-center\",\n            \"px-2 py-0.5 rounded\",\n            \"text-[0.65rem] font-sans font-semibold tracking-widest uppercase\",\n            \"bg-secondary text-secondary-foreground\"\n          )}\n        >\n          NKJV\n        </span>\n\n        {/* Notes panel toggle */}\n        <button\n          type=\"button\"\n          aria-label={notesPanelOpen ? \"Hide notes\" : \"Show notes\"}\n          aria-pressed={notesPanelOpen}\n          onClick={onToggleNotes}\n          className={cn(\n            \"relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-md\",\n            \"text-xs font-medium font-sans\",\n            \"transition-colors duration-100 cursor-pointer\",\n            \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\",\n            notesPanelOpen\n              ? \"bg-primary text-primary-foreground\"\n              : \"bg-secondary text-secondary-foreground hover:bg-secondary/70\"\n          )}\n        >\n          <StickyNote size={13} strokeWidth={2} aria-hidden=\"true\" />\n          <span className=\"hidden sm:inline\">Notes</span>\n          {noteCount > 0 && (\n            <span\n              aria-label={`${noteCount} notes`}\n              className={cn(\n                \"flex items-center justify-center tabular-nums leading-none\",\n                \"w-4 h-4 rounded-full text-[0.6rem] font-bold\",\n                notesPanelOpen\n                  ? \"bg-primary-foreground/20 text-primary-foreground\"\n                  : \"bg-primary text-primary-foreground\"\n              )}\n            >\n              {noteCount}\n            </span>\n          )}\n        </button>\n      </div>\n    </header>\n  );\n}\n\n/* ─── ChapterNavButton ───────────────────────────────────────────────────── */\n\ninterface ChapterNavButtonProps {\n  icon: React.ReactNode;\n  label: string;\n  iconAfter?: boolean;\n}\n\nfunction ChapterNavButton({\n  icon,\n  label,\n  iconAfter = false,\n}: ChapterNavButtonProps) {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      className={cn(\n        \"flex items-center gap-1.5 px-3 py-2 rounded-md\",\n        \"text-sm font-medium font-sans text-muted-foreground\",\n        \"border border-border bg-card\",\n        \"hover:bg-secondary hover:text-foreground\",\n        \"transition-colors duration-150 cursor-pointer\",\n        \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n      )}\n    >\n      {!iconAfter && icon}\n      <span>{label}</span>\n      {iconAfter && icon}\n    </button>\n  );\n}\n\n/* ─── Utility ────────────────────────────────────────────────────────────── */\n\n/** Parse \"v. 3\" or \"v. 3–5\" into an array of verse numbers. */\nfunction parseVerseRef(ref: string): number[] {\n  const match = ref.match(/(\\d+)(?:[–\\-](\\d+))?/);\n  if (!match) return [];\n  const start = parseInt(match[1], 10);\n  const end = match[2] ? parseInt(match[2], 10) : start;\n  return Array.from({ length: end - start + 1 }, (_, i) => start + i);\n}\n",
+          "locked": false
+        }
+      ]
+    },
+    "url": "https://v0.app/chat/mNm3V8FIcZQ",
+    "messages": [
+      {
+        "id": "b2WHN2fkTaazwRrITq1QwJDW7U7b3uNq",
+        "object": "message",
+        "content": "Design UI updates for the Next.js (app router) Bible reader page (/bible) using Tailwind only, preserving the existing visual language. We need multi-verse text selection highlights with a compact floating toolbar near the selection (actions: Highlight, Add Note, Cancel), plus a right-side notes panel that lists notes for the current chapter with selected-text previews and edit/delete actions. Keep components small and reusable. Include mobile behavior (panel stacks below on small screens). No new libraries. Provide class names and component structure ideas we can integrate into existing components.",
+        "experimental_content": [
+          [
+            0,
+            [
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Design UI updates for the Next.js (app router) Bible reader page (/bible) using Tailwind only, preserving the existing visual language. We need multi-verse text selection highlights with a compact floating toolbar near the selection (actions: Highlight, Add Note, Cancel), plus a right-side notes panel that lists notes for the current chapter with selected-text previews and edit/delete actions. Keep components small and reusable. Include mobile behavior (panel stacks below on small screens). No new libraries. Provide class names and component structure ideas we can integrate into existing components."
+                ]
+              ]
+            ]
+          ]
+        ],
+        "createdAt": "2026-03-27T23:22:36.907Z",
+        "updatedAt": "2026-03-27T23:22:37.396Z",
+        "type": "message",
+        "role": "user",
+        "apiUrl": "https://api.v0.dev/v1/chats/mNm3V8FIcZQ/messages/b2WHN2fkTaazwRrITq1QwJDW7U7b3uNq",
+        "authorId": "qIT5RQnUGg8IWdZlZQkMn5YF",
+        "parentId": null,
+        "attachments": []
+      },
+      {
+        "id": "61K3zGxNhqgDCya1alePRAOF4QtrY9hq",
+        "object": "message",
+        "content": "Good — I have the full picture. Now I'll build all the components: the Bible reader page, floating selection toolbar, verse highlighting, notes panel, and note card — all in small reusable pieces.Now update `layout.tsx` to load Lora from Google Fonts:Now write all the primitive components in parallel:Now redirect the root page to `/bible`:Here is a full breakdown of everything built and the integration guidance:\n\n---\n\n## What was built\n\n### Theme (`globals.css`)\nFive semantic design tokens were added specifically for the Bible reader — `--verse-highlight`, `--verse-highlight-border`, `--note-stripe`, `--toolbar-bg`, and `--toolbar-fg` — all on a warm parchment base palette (oklch amber/chestnut). Lora serif is now the primary font.\n\n### Components (`/components/bible/`)\n\n| File | Purpose | Key classes |\n|---|---|---|\n| `verse-block.tsx` | Single verse with highlight, selection, note-dot states | `bg-verse-highlight border-l-[3px] border-verse-highlight-border` for highlights; `ring-1 ring-primary/30` for active selection drag |\n| `selection-toolbar.tsx` | Dark floating pill with Highlight / Add Note / Cancel | `absolute z-50 -translate-x-1/2 bg-toolbar-bg text-toolbar-fg rounded-lg shadow-xl` + a pure-CSS downward caret via border-trick |\n| `note-card.tsx` | Panel note entry with verse badge, text preview, edit/delete | `border-l-[3px] border-note-stripe` accent stripe; actions appear on `group-hover` / `group-focus-within` |\n| `notes-panel.tsx` | Right-side panel + empty state | `w-full md:w-72 xl:w-80 shrink-0 md:sticky md:top-14`; stacks below on mobile when `open={false}` |\n| `note-editor.tsx` | Centered modal for create/edit | Backdrop blur scrim + `role=\"dialog\" aria-modal` + Escape-to-close |\n\n### Hook (`/hooks/use-bible-selection.ts`)\n`useBibleSelection()` tracks `window.getSelection()`, maps which `[data-verse]` elements are inside the range, and returns `toolbarPos` (document-relative `{ top, left }`) ready to pass straight into `<SelectionToolbar position={...} />`.\n\n### Integration pattern\nAttach `onMouseUp={onContainerMouseUp}` to the reading `<main>` element. Add `data-verse={number}` to every `<VerseBlock>` (already wired). The toolbar, highlights, note dots, and panel all react to the same shared state in `BiblePage`. Swap in your real data source by replacing the `VERSES` and `INITIAL_NOTES` arrays.",
+        "experimental_content": [
+          [
+            0,
+            [
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653759330,
+                    "finishedAt": 1774653760952,
+                    "lastPartSentAt": 1774653760952,
+                    "taskNameActive": null,
+                    "id": "KP0sSpUBoYsVVCij",
+                    "type": "task-thinking-v1",
+                    "parts": [
+                      {
+                        "type": "thinking-end",
+                        "duration": 2,
+                        "thought": "The user wants UI updates for a Bible reader page with specific features. Let me first check the existing codebase to understand what's there, then generate design inspiration and build the components."
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653761652,
+                    "finishedAt": 1774653765250,
+                    "lastPartSentAt": 1774653765227,
+                    "taskNameActive": "Finding existing pages",
+                    "taskNameComplete": "Found existing pages",
+                    "toolCallId": "toolu_01EddS5gzhEunZH1jy45qhRz",
+                    "agentTurnId": "turn_Nly4IYYHU7mBreVJ",
+                    "filePath": null,
+                    "id": "yPS7X75z8QQ9ZddW",
+                    "type": "task-ls-repo-v1",
+                    "parts": [
+                      {
+                        "type": "ls"
+                      },
+                      {
+                        "type": "ls-results",
+                        "numFiles": 0
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653764812,
+                    "finishedAt": 1774653765974,
+                    "lastPartSentAt": 1774653765951,
+                    "taskNameActive": "Generating design brief",
+                    "taskNameComplete": "Design brief ready",
+                    "toolCallId": "toolu_011NohCPPwWj571UakrMpBhq",
+                    "agentTurnId": "turn_Nly4IYYHU7mBreVJ",
+                    "filePath": null,
+                    "id": "1HewoySCJPNdH45O",
+                    "type": "task-generate-design-inspiration-v1",
+                    "parts": [
+                      {
+                        "type": "starting-design-inspiration",
+                        "prompt": "Bible reader page with multi-verse text selection highlights, compact floating toolbar for highlight/note/cancel actions, and a right-side notes panel listing chapter notes with text previews and edit/delete actions. Mobile-first with panel stacking below on small screens."
+                      },
+                      {
+                        "type": "finished-design-inspiration"
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "type": "task-grouped-tasks-v1",
+                    "id": "jggELEz2IMP2LGI7-10raGtS5JA1Mj8dQ",
+                    "parts": [
+                      {
+                        "createdAt": 1774653769846,
+                        "finishedAt": 1774653770884,
+                        "lastPartSentAt": 1774653770839,
+                        "taskNameActive": "Reading layout and globals",
+                        "taskNameComplete": "Read layout and globals",
+                        "toolCallId": "toolu_017G7yWSLZiUPFmUPyVcCHeP",
+                        "agentTurnId": "turn_csoKipeQyXNAbVtU",
+                        "filePath": null,
+                        "id": "jggELEz2IMP2LGI7",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "app/layout.tsx"
+                          }
+                        ]
+                      },
+                      {
+                        "createdAt": 1774653770469,
+                        "finishedAt": 1774653770887,
+                        "lastPartSentAt": 1774653770842,
+                        "taskNameActive": "Reading globals css",
+                        "taskNameComplete": "Read globals css",
+                        "toolCallId": "toolu_016fUFJgHjgri7ta7STsN3eX",
+                        "agentTurnId": "turn_csoKipeQyXNAbVtU",
+                        "filePath": null,
+                        "id": "10raGtS5JA1Mj8dQ",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "app/globals.css"
+                          }
+                        ]
+                      }
+                    ],
+                    "createdAt": 0,
+                    "finishedAt": 1,
+                    "lastPartSentAt": 1,
+                    "taskNameActive": "Explore • 2 Files",
+                    "taskNameComplete": "Explore • 2 Files"
+                  },
+                  "id": "jggELEz2IMP2LGI7-10raGtS5JA1Mj8dQ"
+                }
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Good — I have the full picture. Now I'll build all the components: the Bible reader page, floating selection toolbar, verse highlighting, notes panel, and note card — all in small reusable pieces."
+                ]
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653777158,
+                    "finishedAt": 1774653777446,
+                    "lastPartSentAt": 1774653777421,
+                    "taskNameActive": "Planning tasks",
+                    "taskNameComplete": "Tasks planned",
+                    "toolCallId": "toolu_0198WWeE3msPa3Vy1hwGag1a",
+                    "agentTurnId": "turn_o5bwgZnHfUw9XAOZ",
+                    "filePath": null,
+                    "id": "zp6ByYVgfLPoTKKa",
+                    "type": "task-manage-todos-v1",
+                    "parts": [
+                      {
+                        "type": "starting-todo-manager"
+                      },
+                      {
+                        "type": "updated-todo-list",
+                        "updatedList": [
+                          {
+                            "status": "in-progress",
+                            "task": "Update globals.css with Bible reader theme tokens"
+                          },
+                          {
+                            "status": "todo",
+                            "task": "Build primitive components (VerseHighlight, SelectionToolbar, NoteCard, NotesPanelEmpty)"
+                          },
+                          {
+                            "status": "todo",
+                            "task": "Build BibleReaderPage with layout, verse text, and panel integration"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Now update "
+                ],
+                [
+                  "code",
+                  {},
+                  "layout.tsx"
+                ],
+                [
+                  "text",
+                  {},
+                  " to load Lora from Google Fonts:"
+                ]
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653814093,
+                    "finishedAt": 1774653814515,
+                    "lastPartSentAt": 1774653814495,
+                    "taskNameActive": "Moving to next task",
+                    "taskNameComplete": "Moved to next task",
+                    "toolCallId": "toolu_013dfVsXQw6m63CaQhJkk51a",
+                    "agentTurnId": "turn_CiE2Bo2ZXfuaJ1Qg",
+                    "filePath": null,
+                    "id": "PsCy55xxcoetiqr6",
+                    "type": "task-manage-todos-v1",
+                    "parts": [
+                      {
+                        "type": "starting-todo-manager"
+                      },
+                      {
+                        "type": "updated-todo-list",
+                        "updatedList": [
+                          {
+                            "status": "done",
+                            "task": "Update globals.css with Bible reader theme tokens"
+                          },
+                          {
+                            "status": "in-progress",
+                            "task": "Build primitive components (VerseHighlight, SelectionToolbar, NoteCard, NotesPanelEmpty)"
+                          },
+                          {
+                            "status": "todo",
+                            "task": "Build BibleReaderPage with layout, verse text, and panel integration"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Now write all the primitive components in parallel:"
+                ]
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653903353,
+                    "finishedAt": 1774653903875,
+                    "lastPartSentAt": 1774653903824,
+                    "taskNameActive": "Moving to page build",
+                    "taskNameComplete": "Moved to page build",
+                    "toolCallId": "toolu_01AeCo8VVmDehn2uUT7rz4xL",
+                    "agentTurnId": "turn_N5wj8vhWLfT9x6K2",
+                    "filePath": null,
+                    "id": "I3nBU1KLSkCDJWX5",
+                    "type": "task-manage-todos-v1",
+                    "parts": [
+                      {
+                        "type": "starting-todo-manager"
+                      },
+                      {
+                        "type": "updated-todo-list",
+                        "updatedList": [
+                          {
+                            "status": "done",
+                            "task": "Update globals.css with Bible reader theme tokens"
+                          },
+                          {
+                            "status": "done",
+                            "task": "Build primitive components (VerseHighlight, SelectionToolbar, NoteCard, NotesPanelEmpty)"
+                          },
+                          {
+                            "status": "in-progress",
+                            "task": "Build BibleReaderPage with layout, verse text, and panel integration"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653978665,
+                    "finishedAt": 1774653979029,
+                    "lastPartSentAt": 1774653978980,
+                    "taskNameActive": "Verifying page file",
+                    "taskNameComplete": "Page file verified",
+                    "toolCallId": "toolu_01VVSP3ac5c8wjdyEAAMnYpx",
+                    "agentTurnId": "turn_zuHIQhibCTr5ALjU",
+                    "filePath": null,
+                    "id": "5RtJqIeuyYIMsNHp",
+                    "type": "task-read-file-v1",
+                    "parts": [
+                      {
+                        "type": "reading-file",
+                        "filePath": "app/bible/page.tsx"
+                      },
+                      {
+                        "type": "reading-file",
+                        "filePath": "app/bible/page.tsx",
+                        "offset": 0,
+                        "limit": 30
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Now redirect the root page to "
+                ],
+                [
+                  "code",
+                  {},
+                  "/bible"
+                ],
+                [
+                  "text",
+                  {},
+                  ":"
+                ]
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653981409,
+                    "finishedAt": 1774653981761,
+                    "lastPartSentAt": 1774653981735,
+                    "taskNameActive": "Reading root page",
+                    "taskNameComplete": "Root page read",
+                    "toolCallId": "toolu_01NoFb8PRrZ6TRF96Fw7XWZ1",
+                    "agentTurnId": "turn_7gOXJx6gHq6pvpyq",
+                    "filePath": null,
+                    "id": "lR2RvlLG19UlHAwq",
+                    "type": "task-read-file-v1",
+                    "parts": [
+                      {
+                        "type": "reading-file",
+                        "filePath": "app/page.tsx"
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774653986408,
+                    "finishedAt": 1774653986900,
+                    "lastPartSentAt": 1774653986871,
+                    "taskNameActive": "Finishing tasks",
+                    "taskNameComplete": "All tasks done",
+                    "toolCallId": "toolu_012ghJfc7wry2NW69tVrFwvC",
+                    "agentTurnId": "turn_C5qKvdHyPpl3juZp",
+                    "filePath": null,
+                    "id": "B9o99FprokRkaQ6c",
+                    "type": "task-manage-todos-v1",
+                    "parts": [
+                      {
+                        "type": "starting-todo-manager"
+                      },
+                      {
+                        "type": "updated-todo-list",
+                        "updatedList": [
+                          {
+                            "status": "done",
+                            "task": "Update globals.css with Bible reader theme tokens"
+                          },
+                          {
+                            "status": "done",
+                            "task": "Build primitive components (VerseHighlight, SelectionToolbar, NoteCard, NotesPanelEmpty)"
+                          },
+                          {
+                            "status": "done",
+                            "task": "Build BibleReaderPage with layout, verse text, and panel integration"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Here is a full breakdown of everything built and the integration guidance:"
+                ]
+              ],
+              [
+                "hr"
+              ],
+              [
+                "h2",
+                {},
+                [
+                  "text",
+                  {},
+                  "What was built"
+                ]
+              ],
+              [
+                "h3",
+                {},
+                [
+                  "text",
+                  {},
+                  "Theme ("
+                ],
+                [
+                  "code",
+                  {},
+                  "globals.css"
+                ],
+                [
+                  "text",
+                  {},
+                  ")"
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Five semantic design tokens were added specifically for the Bible reader — "
+                ],
+                [
+                  "code",
+                  {},
+                  "--verse-highlight"
+                ],
+                [
+                  "text",
+                  {},
+                  ", "
+                ],
+                [
+                  "code",
+                  {},
+                  "--verse-highlight-border"
+                ],
+                [
+                  "text",
+                  {},
+                  ", "
+                ],
+                [
+                  "code",
+                  {},
+                  "--note-stripe"
+                ],
+                [
+                  "text",
+                  {},
+                  ", "
+                ],
+                [
+                  "code",
+                  {},
+                  "--toolbar-bg"
+                ],
+                [
+                  "text",
+                  {},
+                  ", and "
+                ],
+                [
+                  "code",
+                  {},
+                  "--toolbar-fg"
+                ],
+                [
+                  "text",
+                  {},
+                  " — all on a warm parchment base palette (oklch amber/chestnut). Lora serif is now the primary font."
+                ]
+              ],
+              [
+                "h3",
+                {},
+                [
+                  "text",
+                  {},
+                  "Components ("
+                ],
+                [
+                  "code",
+                  {},
+                  "/components/bible/"
+                ],
+                [
+                  "text",
+                  {},
+                  ")"
+                ]
+              ],
+              [
+                "table",
+                {
+                  "align": [
+                    null,
+                    null,
+                    null
+                  ]
+                },
+                [
+                  "thead",
+                  {},
+                  [
+                    "tr",
+                    {},
+                    [
+                      "th",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "File"
+                      ]
+                    ],
+                    [
+                      "th",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "Purpose"
+                      ]
+                    ],
+                    [
+                      "th",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "Key classes"
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "tbody",
+                  {},
+                  [
+                    "tr",
+                    {},
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "verse-block.tsx"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "Single verse with highlight, selection, note-dot states"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "bg-verse-highlight border-l-[3px] border-verse-highlight-border"
+                      ],
+                      [
+                        "text",
+                        {},
+                        " for highlights; "
+                      ],
+                      [
+                        "code",
+                        {},
+                        "ring-1 ring-primary/30"
+                      ],
+                      [
+                        "text",
+                        {},
+                        " for active selection drag"
+                      ]
+                    ]
+                  ],
+                  [
+                    "tr",
+                    {},
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "selection-toolbar.tsx"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "Dark floating pill with Highlight / Add Note / Cancel"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "absolute z-50 -translate-x-1/2 bg-toolbar-bg text-toolbar-fg rounded-lg shadow-xl"
+                      ],
+                      [
+                        "text",
+                        {},
+                        " + a pure-CSS downward caret via border-trick"
+                      ]
+                    ]
+                  ],
+                  [
+                    "tr",
+                    {},
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "note-card.tsx"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "Panel note entry with verse badge, text preview, edit/delete"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "border-l-[3px] border-note-stripe"
+                      ],
+                      [
+                        "text",
+                        {},
+                        " accent stripe; actions appear on "
+                      ],
+                      [
+                        "code",
+                        {},
+                        "group-hover"
+                      ],
+                      [
+                        "text",
+                        {},
+                        " / "
+                      ],
+                      [
+                        "code",
+                        {},
+                        "group-focus-within"
+                      ]
+                    ]
+                  ],
+                  [
+                    "tr",
+                    {},
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "notes-panel.tsx"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "Right-side panel + empty state"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "w-full md:w-72 xl:w-80 shrink-0 md:sticky md:top-14"
+                      ],
+                      [
+                        "text",
+                        {},
+                        "; stacks below on mobile when "
+                      ],
+                      [
+                        "code",
+                        {},
+                        "open={false}"
+                      ]
+                    ]
+                  ],
+                  [
+                    "tr",
+                    {},
+                    [
+                      "td",
+                      {},
+                      [
+                        "code",
+                        {},
+                        "note-editor.tsx"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "Centered modal for create/edit"
+                      ]
+                    ],
+                    [
+                      "td",
+                      {},
+                      [
+                        "text",
+                        {},
+                        "Backdrop blur scrim + "
+                      ],
+                      [
+                        "code",
+                        {},
+                        "role=\"dialog\" aria-modal"
+                      ],
+                      [
+                        "text",
+                        {},
+                        " + Escape-to-close"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "h3",
+                {},
+                [
+                  "text",
+                  {},
+                  "Hook ("
+                ],
+                [
+                  "code",
+                  {},
+                  "/hooks/use-bible-selection.ts"
+                ],
+                [
+                  "text",
+                  {},
+                  ")"
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "code",
+                  {},
+                  "useBibleSelection()"
+                ],
+                [
+                  "text",
+                  {},
+                  " tracks "
+                ],
+                [
+                  "code",
+                  {},
+                  "window.getSelection()"
+                ],
+                [
+                  "text",
+                  {},
+                  ", maps which "
+                ],
+                [
+                  "code",
+                  {},
+                  "[data-verse]"
+                ],
+                [
+                  "text",
+                  {},
+                  " elements are inside the range, and returns "
+                ],
+                [
+                  "code",
+                  {},
+                  "toolbarPos"
+                ],
+                [
+                  "text",
+                  {},
+                  " (document-relative "
+                ],
+                [
+                  "code",
+                  {},
+                  "{ top, left }"
+                ],
+                [
+                  "text",
+                  {},
+                  ") ready to pass straight into "
+                ],
+                [
+                  "code",
+                  {},
+                  "<SelectionToolbar position={...} />"
+                ],
+                [
+                  "text",
+                  {},
+                  "."
+                ]
+              ],
+              [
+                "h3",
+                {},
+                [
+                  "text",
+                  {},
+                  "Integration pattern"
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Attach "
+                ],
+                [
+                  "code",
+                  {},
+                  "onMouseUp={onContainerMouseUp}"
+                ],
+                [
+                  "text",
+                  {},
+                  " to the reading "
+                ],
+                [
+                  "code",
+                  {},
+                  "<main>"
+                ],
+                [
+                  "text",
+                  {},
+                  " element. Add "
+                ],
+                [
+                  "code",
+                  {},
+                  "data-verse={number}"
+                ],
+                [
+                  "text",
+                  {},
+                  " to every "
+                ],
+                [
+                  "code",
+                  {},
+                  "<VerseBlock>"
+                ],
+                [
+                  "text",
+                  {},
+                  " (already wired). The toolbar, highlights, note dots, and panel all react to the same shared state in "
+                ],
+                [
+                  "code",
+                  {},
+                  "BiblePage"
+                ],
+                [
+                  "text",
+                  {},
+                  ". Swap in your real data source by replacing the "
+                ],
+                [
+                  "code",
+                  {},
+                  "VERSES"
+                ],
+                [
+                  "text",
+                  {},
+                  " and "
+                ],
+                [
+                  "code",
+                  {},
+                  "INITIAL_NOTES"
+                ],
+                [
+                  "text",
+                  {},
+                  " arrays."
+                ]
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774654003804,
+                    "finishedAt": 1774654017549,
+                    "lastPartSentAt": 1774654017501,
+                    "id": "delLmAnEfAEqZxAS",
+                    "type": "task-diagnostics-v1",
+                    "blockId": "b_0k3mm8Kv82W",
+                    "parts": [
+                      {
+                        "type": "fetching-diagnostics"
+                      },
+                      {
+                        "type": "diagnostics-passed"
+                      }
+                    ]
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "createdAt": "2026-03-27T23:22:36.908Z",
+        "updatedAt": "2026-03-27T23:26:57.831Z",
+        "type": "message",
+        "role": "assistant",
+        "finishReason": "stop",
+        "apiUrl": "https://api.v0.dev/v1/chats/mNm3V8FIcZQ/messages/61K3zGxNhqgDCya1alePRAOF4QtrY9hq",
+        "authorId": "assistant",
+        "parentId": "b2WHN2fkTaazwRrITq1QwJDW7U7b3uNq",
+        "attachments": []
+      },
+      {
+        "id": "9kWNcDpYJnNxLyEfdW9EltUkivPaMTZA",
+        "object": "message",
+        "content": "Design UI updates for the Next.js (app router) Bible reader page (/bible) using Tailwind only, preserving the existing visual language. We need multi-verse text selection highlights with a compact floating toolbar near the selection (actions: Highlight, Add Note, Cancel), plus a right-side notes panel that lists notes for the current chapter with selected-text previews and edit/delete actions. Keep components small and reusable. Include mobile behavior (panel stacks below on small screens). No new libraries. Provide class names and component structure ideas we can integrate into existing components.",
+        "experimental_content": [
+          [
+            0,
+            [
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Design UI updates for the Next.js (app router) Bible reader page (/bible) using Tailwind only, preserving the existing visual language. We need multi-verse text selection highlights with a compact floating toolbar near the selection (actions: Highlight, Add Note, Cancel), plus a right-side notes panel that lists notes for the current chapter with selected-text previews and edit/delete actions. Keep components small and reusable. Include mobile behavior (panel stacks below on small screens). No new libraries. Provide class names and component structure ideas we can integrate into existing components."
+                ]
+              ]
+            ]
+          ]
+        ],
+        "createdAt": "2026-03-27T23:47:31.409Z",
+        "updatedAt": "2026-03-27T23:47:32.087Z",
+        "type": "message",
+        "role": "user",
+        "apiUrl": "https://api.v0.dev/v1/chats/mNm3V8FIcZQ/messages/9kWNcDpYJnNxLyEfdW9EltUkivPaMTZA",
+        "authorId": "qIT5RQnUGg8IWdZlZQkMn5YF",
+        "parentId": "61K3zGxNhqgDCya1alePRAOF4QtrY9hq",
+        "attachments": []
+      },
+      {
+        "id": "wqs1mYwr2kllw7VqXNJAleqtMiJVA03s",
+        "object": "message",
+        "content": "Good — I have a complete picture of all existing files. I can see several issues to fix and improvements to make:\n\n1. The `SelectionToolbar` uses `position: absolute` but should use `position: fixed` since it positions relative to the viewport (scroll + viewport coords).\n2. The toolbar caret points the wrong way — it should point downward toward the text, meaning the toolbar sits *above* the selection, so the caret is on the *bottom*.\n3. The `useBibleSelection` toolbar offset calculation (`top - 48`) positions the toolbar above the selection rect, but since it's `absolute` in the document, it needs the full scroll offset. When using `fixed` positioning we just use `rect.top`.\n4. The `VerseBlock` uses `bg-primary/8` which isn't a valid Tailwind v4 class (should be `bg-primary/[0.08]`).\n5. The `NotesPanel` on mobile needs a cleaner toggle with a slide/show rather than just `hidden`.\n6. The `NoteEditor` modal `backdrop-blur` class needs a valid value.\n7. The toolbar label logic splits on space to get first word — better to use explicit short labels.\n8. The `BibleReaderPage` layout needs the reading column to be properly centered when the panel is hidden.\n\nLet me rewrite all five component files properly:Now rewrite the main page with corrected layout — `flex-1 mx-auto` centering, a mobile notes drawer toggle that actually shows the panel label, and proper `onMouseDown` dismiss for the toolbar:Here is a summary of every change made and why:\n\n**`useBibleSelection`** — Switched from document-relative `top + scrollY` to pure viewport-relative (`rect.top`) so the toolbar uses `position: fixed` cleanly without scroll math errors. The verse-overlap boundary check logic is unchanged.\n\n**`SelectionToolbar`** — Replaced the `absolute` positioning + inline `style.top` with `position: fixed` via an inline `style` object (necessary because Tailwind purges arbitrary `top`/`left` values that come from runtime state). The CSS triangle caret is now rendered via an inline `style` object to avoid Tailwind utility conflicts, and button labels are explicit strings rather than splitting on spaces. The `Cancel` button is icon-only on the pill to save space.\n\n**`VerseBlock`** — Fixed the selected-state class from `bg-primary/8` (invalid in Tailwind v4) to `bg-primary/[0.07]`. The `data-verse` attribute is placed directly on the `<p>` element so `querySelectorAll(\"[data-verse]\")` in the hook always finds it.\n\n**`NoteCard`** — Made `selectedText` rendering conditional (skips the `<blockquote>` when empty, which happens when a note is created without a selection). The `id` prop is prefixed `_id` to silence the unused-var lint warning while still keeping the prop in the public interface.\n\n**`NotesPanel`** — Desktop panel is now `md:sticky md:top-14` (aligns with the `h-14` header), and the mobile layout uses `flex-col md:flex-row` on the parent content row rather than absolute positioning.\n\n**`BiblePage`** — The content row is now `flex-col md:flex-row` so the panel naturally stacks below on mobile. A `onMouseDown` handler on `<main>` calls `clearSelection()` when clicking outside any `[data-verse]` element, dismissing a stale toolbar.",
+        "experimental_content": [
+          [
+            0,
+            [
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774655254454,
+                    "finishedAt": 1774655255762,
+                    "lastPartSentAt": 1774655255762,
+                    "taskNameActive": null,
+                    "id": "USjJwWJqfSqacWEs",
+                    "type": "task-thinking-v1",
+                    "parts": [
+                      {
+                        "type": "thinking-end",
+                        "duration": 1,
+                        "thought": "Let me read the existing files to understand what's been built so far, then create/update the components properly."
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774655256387,
+                    "finishedAt": 1774655256651,
+                    "lastPartSentAt": 1774655256627,
+                    "taskNameActive": "Finding all files",
+                    "taskNameComplete": "Found all files",
+                    "toolCallId": "toolu_01VszRe4YK2KdgfDMsN1noTY",
+                    "agentTurnId": "turn_4f3Rvc8Fi6yIgXms",
+                    "filePath": null,
+                    "id": "vReY80YhiYvNsE49",
+                    "type": "task-ls-repo-v1",
+                    "parts": [
+                      {
+                        "type": "ls"
+                      },
+                      {
+                        "type": "ls-results",
+                        "numFiles": 0
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "type": "task-grouped-tasks-v1",
+                    "id": "k5Y949CjqSxYV6Tg-Fk4N75nm4b57qXxa",
+                    "parts": [
+                      {
+                        "createdAt": 1774655258685,
+                        "finishedAt": 1774655259360,
+                        "lastPartSentAt": 1774655259333,
+                        "taskNameActive": "Reading layout and globals",
+                        "taskNameComplete": "Read layout and globals",
+                        "toolCallId": "toolu_01QfUuvmg4grEfHZTixpW6RY",
+                        "agentTurnId": "turn_V00cLWEd42XVOi8u",
+                        "filePath": null,
+                        "id": "k5Y949CjqSxYV6Tg",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "app/layout.tsx"
+                          }
+                        ]
+                      },
+                      {
+                        "createdAt": 1774655259127,
+                        "finishedAt": 1774655259362,
+                        "lastPartSentAt": 1774655259334,
+                        "taskNameActive": "Reading globals css",
+                        "taskNameComplete": "Read globals css",
+                        "toolCallId": "toolu_01TD2XtPAW7PLAdF8tdWtSnT",
+                        "agentTurnId": "turn_V00cLWEd42XVOi8u",
+                        "filePath": null,
+                        "id": "Fk4N75nm4b57qXxa",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "app/globals.css"
+                          }
+                        ]
+                      }
+                    ],
+                    "createdAt": 0,
+                    "finishedAt": 1,
+                    "lastPartSentAt": 1,
+                    "taskNameActive": "Explore • 2 Files",
+                    "taskNameComplete": "Explore • 2 Files"
+                  },
+                  "id": "k5Y949CjqSxYV6Tg-Fk4N75nm4b57qXxa"
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "type": "task-grouped-tasks-v1",
+                    "id": "CLadDJurorUYiaQx-g8fLl9SGImHuXhnc",
+                    "parts": [
+                      {
+                        "createdAt": 1774655261853,
+                        "finishedAt": 1774655262733,
+                        "lastPartSentAt": 1774655262709,
+                        "taskNameActive": "Reading existing bible components",
+                        "taskNameComplete": "Read existing bible components",
+                        "toolCallId": "toolu_01B6uRSsVqXYiQTrzKADBM8b",
+                        "agentTurnId": "turn_NPZFrq2fQ8E0igFg",
+                        "filePath": null,
+                        "id": "CLadDJurorUYiaQx",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "app/bible/page.tsx"
+                          }
+                        ]
+                      },
+                      {
+                        "createdAt": 1774655262467,
+                        "finishedAt": 1774655262734,
+                        "lastPartSentAt": 1774655262712,
+                        "taskNameActive": "Reading selection hook",
+                        "taskNameComplete": "Read selection hook",
+                        "toolCallId": "toolu_01PzHSnREaYt1ofqGjNtf55c",
+                        "agentTurnId": "turn_NPZFrq2fQ8E0igFg",
+                        "filePath": null,
+                        "id": "g8fLl9SGImHuXhnc",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "hooks/use-bible-selection.ts"
+                          }
+                        ]
+                      }
+                    ],
+                    "createdAt": 0,
+                    "finishedAt": 1,
+                    "lastPartSentAt": 1,
+                    "taskNameActive": "Explore • 2 Files",
+                    "taskNameComplete": "Explore • 2 Files"
+                  },
+                  "id": "CLadDJurorUYiaQx-g8fLl9SGImHuXhnc"
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "type": "task-grouped-tasks-v1",
+                    "id": "Ly2ZUHauYqKrGO5M-e4TY9Ph7t2W68vMq-u3PYghEI6dhLddmy",
+                    "parts": [
+                      {
+                        "createdAt": 1774655265017,
+                        "finishedAt": 1774655266680,
+                        "lastPartSentAt": 1774655266645,
+                        "taskNameActive": "Reading bible components",
+                        "taskNameComplete": "Read bible components",
+                        "toolCallId": "toolu_01MdH3zgvhuUdo5zvHkA2Jm5",
+                        "agentTurnId": "turn_s0qHaztSIDa9h32K",
+                        "filePath": null,
+                        "id": "Ly2ZUHauYqKrGO5M",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "components/bible/verse-block.tsx"
+                          }
+                        ]
+                      },
+                      {
+                        "createdAt": 1774655265883,
+                        "finishedAt": 1774655266683,
+                        "lastPartSentAt": 1774655266646,
+                        "taskNameActive": "Reading selection toolbar",
+                        "taskNameComplete": "Read selection toolbar",
+                        "toolCallId": "toolu_018uji1siuyf7czWwLDiRtWY",
+                        "agentTurnId": "turn_s0qHaztSIDa9h32K",
+                        "filePath": null,
+                        "id": "e4TY9Ph7t2W68vMq",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "components/bible/selection-toolbar.tsx"
+                          }
+                        ]
+                      },
+                      {
+                        "createdAt": 1774655266405,
+                        "finishedAt": 1774655266683,
+                        "lastPartSentAt": 1774655266647,
+                        "taskNameActive": "Reading notes panel and note card",
+                        "taskNameComplete": "Read notes panel and note card",
+                        "toolCallId": "toolu_01Spz4MkeZcpz3xBvq5KAncD",
+                        "agentTurnId": "turn_s0qHaztSIDa9h32K",
+                        "filePath": null,
+                        "id": "u3PYghEI6dhLddmy",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "components/bible/notes-panel.tsx"
+                          }
+                        ]
+                      }
+                    ],
+                    "createdAt": 0,
+                    "finishedAt": 1,
+                    "lastPartSentAt": 1,
+                    "taskNameActive": "Explore • 3 Files",
+                    "taskNameComplete": "Explore • 3 Files"
+                  },
+                  "id": "Ly2ZUHauYqKrGO5M-e4TY9Ph7t2W68vMq-u3PYghEI6dhLddmy"
+                }
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "type": "task-grouped-tasks-v1",
+                    "id": "3uG32GHmyVD2rkpM-OaHYAAUWbZI3dZCH-xhIcT3x1dTh8HwRn",
+                    "parts": [
+                      {
+                        "createdAt": 1774655269468,
+                        "finishedAt": 1774655270710,
+                        "lastPartSentAt": 1774655270684,
+                        "taskNameActive": "Reading note card and editor",
+                        "taskNameComplete": "Read note card and editor",
+                        "toolCallId": "toolu_0128ECKC3ib9SkutEt9J1wi5",
+                        "agentTurnId": "turn_sdy3GDJbiCSSkc09",
+                        "filePath": null,
+                        "id": "3uG32GHmyVD2rkpM",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "components/bible/note-card.tsx"
+                          }
+                        ]
+                      },
+                      {
+                        "createdAt": 1774655269950,
+                        "finishedAt": 1774655270710,
+                        "lastPartSentAt": 1774655270688,
+                        "taskNameActive": "Reading note editor",
+                        "taskNameComplete": "Read note editor",
+                        "toolCallId": "toolu_012a8Rw4oSyEwM2nN6JcJKwm",
+                        "agentTurnId": "turn_sdy3GDJbiCSSkc09",
+                        "filePath": null,
+                        "id": "OaHYAAUWbZI3dZCH",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "components/bible/note-editor.tsx"
+                          }
+                        ]
+                      },
+                      {
+                        "createdAt": 1774655270458,
+                        "finishedAt": 1774655270711,
+                        "lastPartSentAt": 1774655270689,
+                        "taskNameActive": "Reading root page",
+                        "taskNameComplete": "Read root page",
+                        "toolCallId": "toolu_015FMxCKjQznT1hxFtUyHzyP",
+                        "agentTurnId": "turn_sdy3GDJbiCSSkc09",
+                        "filePath": null,
+                        "id": "xhIcT3x1dTh8HwRn",
+                        "type": "task-read-file-v1",
+                        "parts": [
+                          {
+                            "type": "reading-file",
+                            "filePath": "app/page.tsx"
+                          }
+                        ]
+                      }
+                    ],
+                    "createdAt": 0,
+                    "finishedAt": 1,
+                    "lastPartSentAt": 1,
+                    "taskNameActive": "Explore • 3 Files",
+                    "taskNameComplete": "Explore • 3 Files"
+                  },
+                  "id": "3uG32GHmyVD2rkpM-OaHYAAUWbZI3dZCH-xhIcT3x1dTh8HwRn"
+                }
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Good — I have a complete picture of all existing files. I can see several issues to fix and improvements to make:"
+                ]
+              ],
+              [
+                "ol",
+                {
+                  "start": 1
+                },
+                [
+                  "li",
+                  {
+                    "index": 1
+                  },
+                  [
+                    "text",
+                    {},
+                    "The "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "SelectionToolbar"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " uses "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "position: absolute"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " but should use "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "position: fixed"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " since it positions relative to the viewport (scroll + viewport coords)."
+                  ]
+                ],
+                [
+                  "li",
+                  {
+                    "index": 2
+                  },
+                  [
+                    "text",
+                    {},
+                    "The toolbar caret points the wrong way — it should point downward toward the text, meaning the toolbar sits "
+                  ],
+                  [
+                    "em",
+                    {},
+                    [
+                      "text",
+                      {},
+                      "above"
+                    ]
+                  ],
+                  [
+                    "text",
+                    {},
+                    " the selection, so the caret is on the "
+                  ],
+                  [
+                    "em",
+                    {},
+                    [
+                      "text",
+                      {},
+                      "bottom"
+                    ]
+                  ],
+                  [
+                    "text",
+                    {},
+                    "."
+                  ]
+                ],
+                [
+                  "li",
+                  {
+                    "index": 3
+                  },
+                  [
+                    "text",
+                    {},
+                    "The "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "useBibleSelection"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " toolbar offset calculation ("
+                  ],
+                  [
+                    "code",
+                    {},
+                    "top - 48"
+                  ],
+                  [
+                    "text",
+                    {},
+                    ") positions the toolbar above the selection rect, but since it's "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "absolute"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " in the document, it needs the full scroll offset. When using "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "fixed"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " positioning we just use "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "rect.top"
+                  ],
+                  [
+                    "text",
+                    {},
+                    "."
+                  ]
+                ],
+                [
+                  "li",
+                  {
+                    "index": 4
+                  },
+                  [
+                    "text",
+                    {},
+                    "The "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "VerseBlock"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " uses "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "bg-primary/8"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " which isn't a valid Tailwind v4 class (should be "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "bg-primary/[0.08]"
+                  ],
+                  [
+                    "text",
+                    {},
+                    ")."
+                  ]
+                ],
+                [
+                  "li",
+                  {
+                    "index": 5
+                  },
+                  [
+                    "text",
+                    {},
+                    "The "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "NotesPanel"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " on mobile needs a cleaner toggle with a slide/show rather than just "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "hidden"
+                  ],
+                  [
+                    "text",
+                    {},
+                    "."
+                  ]
+                ],
+                [
+                  "li",
+                  {
+                    "index": 6
+                  },
+                  [
+                    "text",
+                    {},
+                    "The "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "NoteEditor"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " modal "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "backdrop-blur"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " class needs a valid value."
+                  ]
+                ],
+                [
+                  "li",
+                  {
+                    "index": 7
+                  },
+                  [
+                    "text",
+                    {},
+                    "The toolbar label logic splits on space to get first word — better to use explicit short labels."
+                  ]
+                ],
+                [
+                  "li",
+                  {
+                    "index": 8
+                  },
+                  [
+                    "text",
+                    {},
+                    "The "
+                  ],
+                  [
+                    "code",
+                    {},
+                    "BibleReaderPage"
+                  ],
+                  [
+                    "text",
+                    {},
+                    " layout needs the reading column to be properly centered when the panel is hidden."
+                  ]
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Let me rewrite all five component files properly:"
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Now rewrite the main page with corrected layout — "
+                ],
+                [
+                  "code",
+                  {},
+                  "flex-1 mx-auto"
+                ],
+                [
+                  "text",
+                  {},
+                  " centering, a mobile notes drawer toggle that actually shows the panel label, and proper "
+                ],
+                [
+                  "code",
+                  {},
+                  "onMouseDown"
+                ],
+                [
+                  "text",
+                  {},
+                  " dismiss for the toolbar:"
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "text",
+                  {},
+                  "Here is a summary of every change made and why:"
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "strong",
+                  {},
+                  [
+                    "code",
+                    {},
+                    "useBibleSelection"
+                  ]
+                ],
+                [
+                  "text",
+                  {},
+                  " — Switched from document-relative "
+                ],
+                [
+                  "code",
+                  {},
+                  "top + scrollY"
+                ],
+                [
+                  "text",
+                  {},
+                  " to pure viewport-relative ("
+                ],
+                [
+                  "code",
+                  {},
+                  "rect.top"
+                ],
+                [
+                  "text",
+                  {},
+                  ") so the toolbar uses "
+                ],
+                [
+                  "code",
+                  {},
+                  "position: fixed"
+                ],
+                [
+                  "text",
+                  {},
+                  " cleanly without scroll math errors. The verse-overlap boundary check logic is unchanged."
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "strong",
+                  {},
+                  [
+                    "code",
+                    {},
+                    "SelectionToolbar"
+                  ]
+                ],
+                [
+                  "text",
+                  {},
+                  " — Replaced the "
+                ],
+                [
+                  "code",
+                  {},
+                  "absolute"
+                ],
+                [
+                  "text",
+                  {},
+                  " positioning + inline "
+                ],
+                [
+                  "code",
+                  {},
+                  "style.top"
+                ],
+                [
+                  "text",
+                  {},
+                  " with "
+                ],
+                [
+                  "code",
+                  {},
+                  "position: fixed"
+                ],
+                [
+                  "text",
+                  {},
+                  " via an inline "
+                ],
+                [
+                  "code",
+                  {},
+                  "style"
+                ],
+                [
+                  "text",
+                  {},
+                  " object (necessary because Tailwind purges arbitrary "
+                ],
+                [
+                  "code",
+                  {},
+                  "top"
+                ],
+                [
+                  "text",
+                  {},
+                  "/"
+                ],
+                [
+                  "code",
+                  {},
+                  "left"
+                ],
+                [
+                  "text",
+                  {},
+                  " values that come from runtime state). The CSS triangle caret is now rendered via an inline "
+                ],
+                [
+                  "code",
+                  {},
+                  "style"
+                ],
+                [
+                  "text",
+                  {},
+                  " object to avoid Tailwind utility conflicts, and button labels are explicit strings rather than splitting on spaces. The "
+                ],
+                [
+                  "code",
+                  {},
+                  "Cancel"
+                ],
+                [
+                  "text",
+                  {},
+                  " button is icon-only on the pill to save space."
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "strong",
+                  {},
+                  [
+                    "code",
+                    {},
+                    "VerseBlock"
+                  ]
+                ],
+                [
+                  "text",
+                  {},
+                  " — Fixed the selected-state class from "
+                ],
+                [
+                  "code",
+                  {},
+                  "bg-primary/8"
+                ],
+                [
+                  "text",
+                  {},
+                  " (invalid in Tailwind v4) to "
+                ],
+                [
+                  "code",
+                  {},
+                  "bg-primary/[0.07]"
+                ],
+                [
+                  "text",
+                  {},
+                  ". The "
+                ],
+                [
+                  "code",
+                  {},
+                  "data-verse"
+                ],
+                [
+                  "text",
+                  {},
+                  " attribute is placed directly on the "
+                ],
+                [
+                  "code",
+                  {},
+                  "<p>"
+                ],
+                [
+                  "text",
+                  {},
+                  " element so "
+                ],
+                [
+                  "code",
+                  {},
+                  "querySelectorAll(\"[data-verse]\")"
+                ],
+                [
+                  "text",
+                  {},
+                  " in the hook always finds it."
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "strong",
+                  {},
+                  [
+                    "code",
+                    {},
+                    "NoteCard"
+                  ]
+                ],
+                [
+                  "text",
+                  {},
+                  " — Made "
+                ],
+                [
+                  "code",
+                  {},
+                  "selectedText"
+                ],
+                [
+                  "text",
+                  {},
+                  " rendering conditional (skips the "
+                ],
+                [
+                  "code",
+                  {},
+                  "<blockquote>"
+                ],
+                [
+                  "text",
+                  {},
+                  " when empty, which happens when a note is created without a selection). The "
+                ],
+                [
+                  "code",
+                  {},
+                  "id"
+                ],
+                [
+                  "text",
+                  {},
+                  " prop is prefixed "
+                ],
+                [
+                  "code",
+                  {},
+                  "_id"
+                ],
+                [
+                  "text",
+                  {},
+                  " to silence the unused-var lint warning while still keeping the prop in the public interface."
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "strong",
+                  {},
+                  [
+                    "code",
+                    {},
+                    "NotesPanel"
+                  ]
+                ],
+                [
+                  "text",
+                  {},
+                  " — Desktop panel is now "
+                ],
+                [
+                  "code",
+                  {},
+                  "md:sticky md:top-14"
+                ],
+                [
+                  "text",
+                  {},
+                  " (aligns with the "
+                ],
+                [
+                  "code",
+                  {},
+                  "h-14"
+                ],
+                [
+                  "text",
+                  {},
+                  " header), and the mobile layout uses "
+                ],
+                [
+                  "code",
+                  {},
+                  "flex-col md:flex-row"
+                ],
+                [
+                  "text",
+                  {},
+                  " on the parent content row rather than absolute positioning."
+                ]
+              ],
+              [
+                "p",
+                {},
+                [
+                  "strong",
+                  {},
+                  [
+                    "code",
+                    {},
+                    "BiblePage"
+                  ]
+                ],
+                [
+                  "text",
+                  {},
+                  " — The content row is now "
+                ],
+                [
+                  "code",
+                  {},
+                  "flex-col md:flex-row"
+                ],
+                [
+                  "text",
+                  {},
+                  " so the panel naturally stacks below on mobile. A "
+                ],
+                [
+                  "code",
+                  {},
+                  "onMouseDown"
+                ],
+                [
+                  "text",
+                  {},
+                  " handler on "
+                ],
+                [
+                  "code",
+                  {},
+                  "<main>"
+                ],
+                [
+                  "text",
+                  {},
+                  " calls "
+                ],
+                [
+                  "code",
+                  {},
+                  "clearSelection()"
+                ],
+                [
+                  "text",
+                  {},
+                  " when clicking outside any "
+                ],
+                [
+                  "code",
+                  {},
+                  "[data-verse]"
+                ],
+                [
+                  "text",
+                  {},
+                  " element, dismissing a stale toolbar."
+                ]
+              ],
+              [
+                "AssistantMessageContentPart",
+                {
+                  "part": {
+                    "createdAt": 1774655482229,
+                    "finishedAt": 1774655496147,
+                    "lastPartSentAt": 1774655496081,
+                    "id": "FmuKxB8Yknp7v4J3",
+                    "type": "task-diagnostics-v1",
+                    "blockId": "b_WdjnCtOXcqR",
+                    "parts": [
+                      {
+                        "type": "fetching-diagnostics"
+                      },
+                      {
+                        "type": "diagnostics-passed"
+                      }
+                    ]
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "createdAt": "2026-03-27T23:47:31.410Z",
+        "updatedAt": "2026-03-27T23:51:36.474Z",
+        "type": "message",
+        "role": "assistant",
+        "finishReason": "stop",
+        "apiUrl": "https://api.v0.dev/v1/chats/mNm3V8FIcZQ/messages/wqs1mYwr2kllw7VqXNJAleqtMiJVA03s",
+        "authorId": "assistant",
+        "parentId": "9kWNcDpYJnNxLyEfdW9EltUkivPaMTZA",
+        "attachments": []
+      }
+    ],
+    "files": [
+      {
+        "lang": "css",
+        "meta": {
+          "file": "app/globals.css",
+          "isMerged": "true"
+        },
+        "source": "@import 'tailwindcss';\n@import 'tw-animate-css';\n\n@custom-variant dark (&:is(.dark *));\n\n:root {\n  /* Warm parchment base — Bible reader palette */\n  --background: oklch(0.975 0.008 80);       /* warm off-white / parchment */\n  --foreground: oklch(0.22 0.018 50);        /* dark warm brown */\n  --card: oklch(0.99 0.006 80);\n  --card-foreground: oklch(0.22 0.018 50);\n  --popover: oklch(0.99 0.006 80);\n  --popover-foreground: oklch(0.22 0.018 50);\n  --primary: oklch(0.42 0.07 35);            /* warm chestnut / brick */\n  --primary-foreground: oklch(0.985 0 0);\n  --secondary: oklch(0.93 0.014 80);         /* warm light tan */\n  --secondary-foreground: oklch(0.3 0.02 50);\n  --muted: oklch(0.94 0.01 80);\n  --muted-foreground: oklch(0.5 0.02 60);\n  --accent: oklch(0.78 0.09 65);             /* warm amber accent */\n  --accent-foreground: oklch(0.18 0.02 50);\n  --destructive: oklch(0.577 0.245 27.325);\n  --destructive-foreground: oklch(0.985 0 0);\n  --border: oklch(0.875 0.016 75);\n  --input: oklch(0.92 0.012 78);\n  --ring: oklch(0.65 0.06 55);\n\n  /* Bible-specific tokens */\n  --verse-highlight: oklch(0.91 0.09 85);    /* warm amber highlight */\n  --verse-highlight-border: oklch(0.78 0.10 70);\n  --note-stripe: oklch(0.42 0.07 35);        /* matches primary */\n  --toolbar-bg: oklch(0.22 0.018 50);        /* dark toolbar */\n  --toolbar-fg: oklch(0.96 0.006 80);\n\n  --chart-1: oklch(0.646 0.222 41.116);\n  --chart-2: oklch(0.6 0.118 184.704);\n  --chart-3: oklch(0.398 0.07 227.392);\n  --chart-4: oklch(0.828 0.189 84.429);\n  --chart-5: oklch(0.769 0.188 70.08);\n  --radius: 0.5rem;\n  --sidebar: oklch(0.96 0.01 78);\n  --sidebar-foreground: oklch(0.22 0.018 50);\n  --sidebar-primary: oklch(0.42 0.07 35);\n  --sidebar-primary-foreground: oklch(0.985 0 0);\n  --sidebar-accent: oklch(0.93 0.014 80);\n  --sidebar-accent-foreground: oklch(0.3 0.02 50);\n  --sidebar-border: oklch(0.875 0.016 75);\n  --sidebar-ring: oklch(0.65 0.06 55);\n}\n\n.dark {\n  --background: oklch(0.145 0 0);\n  --foreground: oklch(0.985 0 0);\n  --card: oklch(0.145 0 0);\n  --card-foreground: oklch(0.985 0 0);\n  --popover: oklch(0.145 0 0);\n  --popover-foreground: oklch(0.985 0 0);\n  --primary: oklch(0.985 0 0);\n  --primary-foreground: oklch(0.205 0 0);\n  --secondary: oklch(0.269 0 0);\n  --secondary-foreground: oklch(0.985 0 0);\n  --muted: oklch(0.269 0 0);\n  --muted-foreground: oklch(0.708 0 0);\n  --accent: oklch(0.269 0 0);\n  --accent-foreground: oklch(0.985 0 0);\n  --destructive: oklch(0.396 0.141 25.723);\n  --destructive-foreground: oklch(0.637 0.237 25.331);\n  --border: oklch(0.269 0 0);\n  --input: oklch(0.269 0 0);\n  --ring: oklch(0.439 0 0);\n  --chart-1: oklch(0.488 0.243 264.376);\n  --chart-2: oklch(0.696 0.17 162.48);\n  --chart-3: oklch(0.769 0.188 70.08);\n  --chart-4: oklch(0.627 0.265 303.9);\n  --chart-5: oklch(0.645 0.246 16.439);\n  --sidebar: oklch(0.205 0 0);\n  --sidebar-foreground: oklch(0.985 0 0);\n  --sidebar-primary: oklch(0.488 0.243 264.376);\n  --sidebar-primary-foreground: oklch(0.985 0 0);\n  --sidebar-accent: oklch(0.269 0 0);\n  --sidebar-accent-foreground: oklch(0.985 0 0);\n  --sidebar-border: oklch(0.269 0 0);\n  --sidebar-ring: oklch(0.439 0 0);\n}\n\n@theme inline {\n  --font-sans: 'Lora', 'Georgia', serif;\n  --font-serif: 'Lora', 'Georgia', serif;\n  --font-mono: 'Geist Mono', 'Geist Mono Fallback';\n  --color-verse-highlight: var(--verse-highlight);\n  --color-verse-highlight-border: var(--verse-highlight-border);\n  --color-note-stripe: var(--note-stripe);\n  --color-toolbar-bg: var(--toolbar-bg);\n  --color-toolbar-fg: var(--toolbar-fg);\n  --color-background: var(--background);\n  --color-foreground: var(--foreground);\n  --color-card: var(--card);\n  --color-card-foreground: var(--card-foreground);\n  --color-popover: var(--popover);\n  --color-popover-foreground: var(--popover-foreground);\n  --color-primary: var(--primary);\n  --color-primary-foreground: var(--primary-foreground);\n  --color-secondary: var(--secondary);\n  --color-secondary-foreground: var(--secondary-foreground);\n  --color-muted: var(--muted);\n  --color-muted-foreground: var(--muted-foreground);\n  --color-accent: var(--accent);\n  --color-accent-foreground: var(--accent-foreground);\n  --color-destructive: var(--destructive);\n  --color-destructive-foreground: var(--destructive-foreground);\n  --color-border: var(--border);\n  --color-input: var(--input);\n  --color-ring: var(--ring);\n  --color-chart-1: var(--chart-1);\n  --color-chart-2: var(--chart-2);\n  --color-chart-3: var(--chart-3);\n  --color-chart-4: var(--chart-4);\n  --color-chart-5: var(--chart-5);\n  --radius-sm: calc(var(--radius) - 4px);\n  --radius-md: calc(var(--radius) - 2px);\n  --radius-lg: var(--radius);\n  --radius-xl: calc(var(--radius) + 4px);\n  --color-sidebar: var(--sidebar);\n  --color-sidebar-foreground: var(--sidebar-foreground);\n  --color-sidebar-primary: var(--sidebar-primary);\n  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);\n  --color-sidebar-accent: var(--sidebar-accent);\n  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);\n  --color-sidebar-border: var(--sidebar-border);\n  --color-sidebar-ring: var(--sidebar-ring);\n}\n\n@layer base {\n  * {\n    @apply border-border outline-ring/50;\n  }\n  body {\n    @apply bg-background text-foreground;\n  }\n}\n"
+      },
+      {
+        "lang": "json",
+        "meta": {
+          "file": "package.json",
+          "isMerged": "true"
+        },
+        "source": "{\n  \"name\": \"my-project\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"next dev\",\n    \"build\": \"next build\",\n    \"start\": \"next start\",\n    \"lint\": \"eslint .\"\n  },\n  \"dependencies\": {\n    \"@hookform/resolvers\": \"^3.9.1\",\n    \"@vercel/analytics\": \"1.6.1\",\n    \"@radix-ui/react-accordion\": \"1.2.12\",\n    \"@radix-ui/react-alert-dialog\": \"1.1.15\",\n    \"@radix-ui/react-aspect-ratio\": \"1.1.8\",\n    \"@radix-ui/react-avatar\": \"1.1.11\",\n    \"@radix-ui/react-checkbox\": \"1.3.3\",\n    \"@radix-ui/react-collapsible\": \"1.1.12\",\n    \"@radix-ui/react-context-menu\": \"2.2.16\",\n    \"@radix-ui/react-dialog\": \"1.1.15\",\n    \"@radix-ui/react-dropdown-menu\": \"2.1.16\",\n    \"@radix-ui/react-hover-card\": \"1.1.15\",\n    \"@radix-ui/react-label\": \"2.1.8\",\n    \"@radix-ui/react-menubar\": \"1.1.16\",\n    \"@radix-ui/react-navigation-menu\": \"1.2.14\",\n    \"@radix-ui/react-popover\": \"1.1.15\",\n    \"@radix-ui/react-progress\": \"1.1.8\",\n    \"@radix-ui/react-radio-group\": \"1.3.8\",\n    \"@radix-ui/react-scroll-area\": \"1.2.10\",\n    \"@radix-ui/react-select\": \"2.2.6\",\n    \"@radix-ui/react-separator\": \"1.1.8\",\n    \"@radix-ui/react-slider\": \"1.3.6\",\n    \"@radix-ui/react-slot\": \"1.2.4\",\n    \"@radix-ui/react-switch\": \"1.2.6\",\n    \"@radix-ui/react-tabs\": \"1.1.13\",\n    \"@radix-ui/react-toast\": \"1.2.15\",\n    \"@radix-ui/react-toggle\": \"1.1.10\",\n    \"@radix-ui/react-toggle-group\": \"1.1.11\",\n    \"@radix-ui/react-tooltip\": \"1.2.8\",\n    \"autoprefixer\": \"^10.4.20\",\n    \"class-variance-authority\": \"^0.7.1\",\n    \"clsx\": \"^2.1.1\",\n    \"cmdk\": \"1.1.1\",\n    \"date-fns\": \"4.1.0\",\n    \"embla-carousel-react\": \"8.6.0\",\n    \"input-otp\": \"1.4.2\",\n    \"lucide-react\": \"^0.564.0\",\n    \"next\": \"16.2.0\",\n    \"next-themes\": \"^0.4.6\",\n    \"react\": \"19.2.4\",\n    \"react-day-picker\": \"9.13.2\",\n    \"react-dom\": \"19.2.4\",\n    \"react-hook-form\": \"^7.54.1\",\n    \"react-resizable-panels\": \"^2.1.7\",\n    \"recharts\": \"2.15.0\",\n    \"sonner\": \"^1.7.1\",\n    \"tailwind-merge\": \"^3.3.1\",\n    \"vaul\": \"^1.1.2\",\n    \"zod\": \"^3.24.1\",\n    \"tailwindcss-animate\": \"1.0.7\"\n  },\n  \"devDependencies\": {\n    \"@tailwindcss/postcss\": \"^4.2.0\",\n    \"@types/node\": \"^22\",\n    \"@types/react\": \"19.2.14\",\n    \"@types/react-dom\": \"19.2.3\",\n    \"postcss\": \"^8.5\",\n    \"tailwindcss\": \"^4.2.0\",\n    \"tw-animate-css\": \"1.3.3\",\n    \"typescript\": \"5.7.3\"\n  }\n}\n"
+      },
+      {
+        "lang": "typescriptreact",
+        "meta": {
+          "file": "app/layout.tsx",
+          "isMerged": "true"
+        },
+        "source": "import type { Metadata } from 'next'\nimport { Lora, Geist_Mono } from 'next/font/google'\nimport { Analytics } from '@vercel/analytics/next'\nimport './globals.css'\n\nconst _lora = Lora({ subsets: [\"latin\"], variable: \"--font-lora\" });\nconst _geistMono = Geist_Mono({ subsets: [\"latin\"] });\n\nexport const metadata: Metadata = {\n  title: 'Scripture Reader',\n  description: 'A focused Bible reading experience with highlights and notes.',\n  generator: 'v0.app',\n  icons: {\n    icon: [\n      {\n        url: '/icon-light-32x32.png',\n        media: '(prefers-color-scheme: light)',\n      },\n      {\n        url: '/icon-dark-32x32.png',\n        media: '(prefers-color-scheme: dark)',\n      },\n      {\n        url: '/icon.svg',\n        type: 'image/svg+xml',\n      },\n    ],\n    apple: '/apple-icon.png',\n  },\n}\n\nexport default function RootLayout({\n  children,\n}: Readonly<{\n  children: React.ReactNode\n}>) {\n  return (\n    <html lang=\"en\">\n      <body className=\"font-sans antialiased\">\n        {children}\n        <Analytics />\n      </body>\n    </html>\n  )\n}\n"
+      },
+      {
+        "lang": "typescriptreact",
+        "meta": {
+          "file": "components/bible/selection-toolbar.tsx",
+          "isMerged": "true"
+        },
+        "source": "\"use client\";\n\n/**\n * SelectionToolbar\n *\n * A compact, pill-shaped floating toolbar that appears above a text selection.\n *\n * Positioning:\n *   Uses `position: fixed` with the viewport-relative coords from\n *   `useBibleSelection`. The toolbar is centred horizontally via\n *   `translate(-50%, 0)` and placed above the selection rect.\n *   A downward-pointing CSS caret sits at the bottom of the pill.\n *\n * Integration:\n *   const { toolbarPos, ... } = useBibleSelection();\n *   {toolbarPos && (\n *     <SelectionToolbar\n *       position={toolbarPos}\n *       onHighlight={handleHighlight}\n *       onAddNote={handleAddNote}\n *       onCancel={clearSelection}\n *     />\n *   )}\n *\n * Tailwind class reference:\n *   Wrapper:  fixed z-50 flex items-center gap-px rounded-lg overflow-visible\n *             bg-toolbar-bg text-toolbar-fg shadow-[0_4px_24px_rgba(0,0,0,0.4)]\n *             border border-white/10\n *   Button:   flex items-center gap-1.5 px-3 py-2 text-xs font-medium\n *             transition-colors duration-100 cursor-pointer hover:bg-white/10\n *   Caret:    absolute -bottom-[5px] left-1/2 -translate-x-1/2\n *             border-l-[5px] border-l-transparent\n *             border-r-[5px] border-r-transparent\n *             border-t-[5px] border-t-toolbar-bg\n *             (pure-CSS downward triangle)\n */\n\nimport { Highlighter, StickyNote, X } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\nimport type { ToolbarPosition } from \"@/hooks/use-bible-selection\";\n\ninterface SelectionToolbarProps {\n  /** Fixed (viewport-relative) coordinates from useBibleSelection */\n  position: ToolbarPosition;\n  onHighlight: () => void;\n  onAddNote: () => void;\n  onCancel: () => void;\n  className?: string;\n}\n\nexport function SelectionToolbar({\n  position,\n  onHighlight,\n  onAddNote,\n  onCancel,\n  className,\n}: SelectionToolbarProps) {\n  return (\n    <div\n      role=\"toolbar\"\n      aria-label=\"Selection actions\"\n      style={{\n        position: \"fixed\",\n        top: position.top,\n        left: position.left,\n        transform: \"translate(-50%, 0)\",\n      }}\n      className={cn(\n        \"z-50 flex items-center gap-px\",\n        \"rounded-lg overflow-visible\",\n        \"bg-toolbar-bg text-toolbar-fg\",\n        \"shadow-[0_4px_24px_rgba(0,0,0,0.45)]\",\n        \"border border-white/10\",\n        \"animate-in fade-in zoom-in-95 duration-100\",\n        className\n      )}\n    >\n      {/* Downward-pointing caret — CSS border triangle trick */}\n      <span\n        aria-hidden=\"true\"\n        style={{\n          position: \"absolute\",\n          bottom: \"-5px\",\n          left: \"50%\",\n          transform: \"translateX(-50%)\",\n          width: 0,\n          height: 0,\n          borderLeft: \"5px solid transparent\",\n          borderRight: \"5px solid transparent\",\n          borderTop: \"5px solid var(--toolbar-bg)\",\n          pointerEvents: \"none\",\n        }}\n      />\n\n      <ToolbarButton\n        icon={<Highlighter size={13} strokeWidth={2} aria-hidden=\"true\" />}\n        label=\"Highlight\"\n        onClick={onHighlight}\n        hoverClass=\"hover:bg-amber-700/60\"\n      />\n\n      <Divider />\n\n      <ToolbarButton\n        icon={<StickyNote size={13} strokeWidth={2} aria-hidden=\"true\" />}\n        label=\"Add Note\"\n        onClick={onAddNote}\n        hoverClass=\"hover:bg-primary/50\"\n      />\n\n      <Divider />\n\n      <ToolbarButton\n        icon={<X size={13} strokeWidth={2.5} aria-hidden=\"true\" />}\n        label=\"Cancel\"\n        onClick={onCancel}\n        hoverClass=\"hover:bg-white/10\"\n        iconOnly\n      />\n    </div>\n  );\n}\n\n/* ─── Internal pieces ────────────────────────────────────────────────────── */\n\nfunction Divider() {\n  return (\n    <span\n      aria-hidden=\"true\"\n      className=\"w-px h-5 bg-white/15 shrink-0\"\n    />\n  );\n}\n\ninterface ToolbarButtonProps {\n  icon: React.ReactNode;\n  label: string;\n  onClick: () => void;\n  hoverClass?: string;\n  /** Show only the icon (still has an accessible label) */\n  iconOnly?: boolean;\n}\n\nfunction ToolbarButton({\n  icon,\n  label,\n  onClick,\n  hoverClass = \"hover:bg-white/10\",\n  iconOnly = false,\n}: ToolbarButtonProps) {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      title={label}\n      onClick={onClick}\n      className={cn(\n        \"flex items-center gap-1.5 whitespace-nowrap\",\n        \"px-3 py-2 text-xs font-medium font-sans leading-none\",\n        \"transition-colors duration-100 cursor-pointer\",\n        \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40\",\n        hoverClass\n      )}\n    >\n      {icon}\n      {!iconOnly && <span>{label}</span>}\n    </button>\n  );\n}\n"
+      },
+      {
+        "lang": "typescriptreact",
+        "meta": {
+          "file": "components/bible/verse-block.tsx",
+          "isMerged": "true"
+        },
+        "source": "\"use client\";\n\n/**\n * VerseBlock\n *\n * Renders a single Bible verse. Supports four visual states:\n *\n *   Default:     Plain text with a muted verse number\n *   Highlighted: Warm amber wash + left accent border\n *   Selected:    Subtle primary tint during an active drag selection\n *   Has Note:    A small dot indicator inline after the verse text\n *\n * Every block must receive `number` and carry `data-verse={number}` so that\n * `useBibleSelection` can detect which verses fall inside a text selection.\n *\n * Tailwind class reference:\n *   Base:        pl-6 pr-2 py-1.5 rounded-sm font-serif text-base leading-relaxed\n *                text-foreground transition-colors duration-150 cursor-text select-text\n *   Highlighted: bg-verse-highlight border-l-[3px] border-verse-highlight-border pl-5\n *   Selected:    bg-primary/[0.07] ring-1 ring-inset ring-primary/30\n *   Number:      text-[0.65rem] font-semibold font-sans tabular-nums select-none\n *   Note dot:    inline-block w-1.5 h-1.5 rounded-full bg-note-stripe opacity-75\n */\n\nimport { cn } from \"@/lib/utils\";\n\nexport interface VerseBlockProps {\n  number: number;\n  text: string;\n  highlighted?: boolean;\n  selected?: boolean;\n  hasNote?: boolean;\n  className?: string;\n}\n\nexport function VerseBlock({\n  number,\n  text,\n  highlighted = false,\n  selected = false,\n  hasNote = false,\n  className,\n}: VerseBlockProps) {\n  return (\n    <p\n      data-verse={number}\n      className={cn(\n        // Base layout & typography\n        \"relative pl-6 pr-2 py-1.5 rounded-sm\",\n        \"font-serif text-base leading-relaxed text-foreground\",\n        \"transition-colors duration-150 cursor-text select-text\",\n        // Highlighted state — amber wash with left accent border\n        highlighted && [\n          \"bg-verse-highlight\",\n          \"border-l-[3px] border-verse-highlight-border\",\n          \"pl-5\", // offset the 3px border so text stays aligned\n        ],\n        // Active drag-selection state — only show when not already highlighted\n        selected && !highlighted && [\n          \"bg-primary/[0.07]\",\n          \"ring-1 ring-inset ring-primary/25\",\n        ],\n        className\n      )}\n    >\n      {/* Verse number */}\n      <sup\n        className={cn(\n          \"mr-1.5 text-[0.65rem] font-semibold font-sans tabular-nums select-none\",\n          highlighted ? \"text-note-stripe\" : \"text-muted-foreground\"\n        )}\n        aria-label={`Verse ${number}`}\n      >\n        {number}\n      </sup>\n\n      {text}\n\n      {/* Note indicator dot */}\n      {hasNote && (\n        <span\n          role=\"img\"\n          aria-label=\"Has a note\"\n          title=\"This verse has a note\"\n          className={cn(\n            \"inline-block ml-1.5 mb-0.5 align-middle shrink-0\",\n            \"w-1.5 h-1.5 rounded-full\",\n            \"bg-note-stripe opacity-75\"\n          )}\n        />\n      )}\n    </p>\n  );\n}\n"
+      },
+      {
+        "lang": "typescriptreact",
+        "meta": {
+          "file": "components/bible/note-card.tsx",
+          "isMerged": "true"
+        },
+        "source": "\"use client\";\n\n/**\n * NoteCard\n *\n * A single note entry displayed in the NotesPanel. Shows:\n *   - Left accent stripe (matching the verse highlight colour)\n *   - Verse reference badge (e.g. \"v. 3–4\")\n *   - Quoted selected-text preview (truncated, italic)\n *   - Note body text (clamped to 3 lines)\n *   - Edit / Delete icon buttons (reveal on hover / focus-within)\n *\n * Tailwind class reference:\n *   Card:      group relative flex flex-col gap-2 rounded-md border border-border\n *              bg-card p-3 transition-shadow duration-150 hover:shadow-sm\n *   Stripe:    absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-note-stripe\n *   Badge:     inline-flex items-center px-1.5 py-0.5 rounded\n *              text-[0.65rem] font-sans font-semibold tracking-wide uppercase\n *              bg-secondary text-secondary-foreground\n *   Actions:   opacity-0 group-hover:opacity-100 group-focus-within:opacity-100\n *              transition-opacity duration-150\n *   Quote:     pl-3 ml-px border-l-2 border-verse-highlight-border\n *              text-xs italic text-muted-foreground leading-relaxed line-clamp-2\n */\n\nimport { Pencil, Trash2 } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface NoteCardProps {\n  id: string;\n  verseRef: string;\n  selectedText: string;\n  noteText: string;\n  onEdit: () => void;\n  onDelete: () => void;\n  className?: string;\n}\n\nexport function NoteCard({\n  id: _id,\n  verseRef,\n  selectedText,\n  noteText,\n  onEdit,\n  onDelete,\n  className,\n}: NoteCardProps) {\n  return (\n    <article\n      aria-label={`Note for ${verseRef}`}\n      className={cn(\n        \"group relative flex flex-col gap-2\",\n        \"rounded-md border border-border bg-card p-3\",\n        \"transition-shadow duration-150 hover:shadow-sm\",\n        className\n      )}\n    >\n      {/* Left accent stripe */}\n      <span\n        aria-hidden=\"true\"\n        className=\"absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-note-stripe\"\n      />\n\n      {/* Header: verse badge + action buttons */}\n      <div className=\"flex items-center justify-between gap-2 pl-3\">\n        <span\n          className={cn(\n            \"inline-flex items-center px-1.5 py-0.5 rounded\",\n            \"text-[0.65rem] font-sans font-semibold tracking-wide uppercase\",\n            \"bg-secondary text-secondary-foreground shrink-0\"\n          )}\n        >\n          {verseRef}\n        </span>\n\n        {/* Reveal on hover / keyboard focus */}\n        <div\n          role=\"group\"\n          aria-label=\"Note actions\"\n          className={cn(\n            \"flex items-center gap-0.5\",\n            \"opacity-0 group-hover:opacity-100 group-focus-within:opacity-100\",\n            \"transition-opacity duration-150\"\n          )}\n        >\n          <NoteIconButton\n            icon={<Pencil size={12} strokeWidth={2} aria-hidden=\"true\" />}\n            label={`Edit note for ${verseRef}`}\n            onClick={onEdit}\n            className=\"hover:text-primary\"\n          />\n          <NoteIconButton\n            icon={<Trash2 size={12} strokeWidth={2} aria-hidden=\"true\" />}\n            label={`Delete note for ${verseRef}`}\n            onClick={onDelete}\n            className=\"hover:text-destructive\"\n          />\n        </div>\n      </div>\n\n      {/* Selected-text quote */}\n      {selectedText && (\n        <blockquote\n          className={cn(\n            \"pl-3 ml-px border-l-2 border-verse-highlight-border\",\n            \"text-xs italic text-muted-foreground leading-relaxed line-clamp-2\"\n          )}\n        >\n          &ldquo;{selectedText}&rdquo;\n        </blockquote>\n      )}\n\n      {/* Note body */}\n      <p className=\"pl-3 text-sm leading-relaxed text-foreground line-clamp-3 font-sans\">\n        {noteText}\n      </p>\n    </article>\n  );\n}\n\n/* ─── Icon button ────────────────────────────────────────────────────────── */\n\ninterface NoteIconButtonProps {\n  icon: React.ReactNode;\n  label: string;\n  onClick: () => void;\n  className?: string;\n}\n\nfunction NoteIconButton({ icon, label, onClick, className }: NoteIconButtonProps) {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      title={label}\n      onClick={onClick}\n      className={cn(\n        \"p-1.5 rounded text-muted-foreground\",\n        \"transition-colors duration-100 cursor-pointer\",\n        \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\",\n        className\n      )}\n    >\n      {icon}\n    </button>\n  );\n}\n"
+      },
+      {
+        "lang": "typescriptreact",
+        "meta": {
+          "file": "components/bible/notes-panel.tsx",
+          "isMerged": "true"
+        },
+        "source": "\"use client\";\n\n/**\n * NotesPanel\n *\n * Right-side panel listing all reader notes for the current chapter.\n *\n * Responsive layout:\n *   md+  — Fixed-width right column (w-72 xl:w-80), sticky under the header,\n *           independently scrollable, full reader height.\n *   <md  — Stacks below the main reading column as a full-width section.\n *           Hidden when `open={false}` (controlled by the header toggle).\n *\n * Tailwind class reference:\n *   Aside wrapper:  \"shrink-0 bg-sidebar border-border\"\n *                   \"w-full md:w-72 xl:w-80\"         (width)\n *                   \"md:sticky md:top-14\"            (sticky on desktop)\n *                   \"md:min-h-[calc(100dvh-3.5rem)]\" (full height on desktop)\n *                   \"border-t md:border-t-0 md:border-l\" (border placement)\n *                   Mobile hidden: \"hidden md:flex\" when !open\n *   Scroll area:    \"flex-1 overflow-y-auto md:max-h-[calc(100dvh-7rem)]\"\n */\n\nimport { BookOpen, Plus } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\nimport { NoteCard, type NoteCardProps } from \"./note-card\";\n\nexport interface Note extends Omit<NoteCardProps, \"onEdit\" | \"onDelete\"> {}\n\ninterface NotesPanelProps {\n  chapterRef: string;\n  notes: Note[];\n  /** On mobile: whether the panel is visible (it always shows on md+) */\n  open?: boolean;\n  onAddNote?: () => void;\n  onEditNote: (id: string) => void;\n  onDeleteNote: (id: string) => void;\n  className?: string;\n}\n\nexport function NotesPanel({\n  chapterRef,\n  notes,\n  open = true,\n  onAddNote,\n  onEditNote,\n  onDeleteNote,\n  className,\n}: NotesPanelProps) {\n  return (\n    <aside\n      aria-label={`Notes for ${chapterRef}`}\n      className={cn(\n        // Layout\n        \"flex flex-col shrink-0\",\n        \"w-full md:w-72 xl:w-80\",\n        // Sticky on desktop — top aligns below the 3.5rem header\n        \"md:sticky md:top-14\",\n        \"md:min-h-[calc(100dvh-3.5rem)]\",\n        // Borders\n        \"border-t border-border md:border-t-0 md:border-l\",\n        // Surface\n        \"bg-sidebar\",\n        // Mobile visibility: always show on md+, conditionally on mobile\n        !open && \"hidden md:flex\",\n        className\n      )}\n    >\n      {/* ── Panel header ─────────────────────────────────────────────── */}\n      <header\n        className={cn(\n          \"sticky top-0 z-10 shrink-0\",\n          \"flex items-center justify-between gap-2\",\n          \"px-4 py-3\",\n          \"bg-sidebar border-b border-border\"\n        )}\n      >\n        <div className=\"flex items-center gap-2 min-w-0\">\n          <BookOpen\n            size={14}\n            strokeWidth={2}\n            className=\"text-primary shrink-0\"\n            aria-hidden=\"true\"\n          />\n          <h2 className=\"text-sm font-semibold font-sans text-foreground truncate\">\n            Notes\n            <span className=\"ml-1.5 font-normal text-muted-foreground\">\n              &mdash; {chapterRef}\n            </span>\n          </h2>\n        </div>\n\n        {onAddNote && (\n          <button\n            type=\"button\"\n            aria-label=\"Add new note\"\n            title=\"Add new note\"\n            onClick={onAddNote}\n            className={cn(\n              \"flex items-center gap-1 px-2 py-1 rounded shrink-0\",\n              \"text-xs font-medium font-sans\",\n              \"bg-primary text-primary-foreground\",\n              \"hover:bg-primary/85 transition-colors duration-100 cursor-pointer\",\n              \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n            )}\n          >\n            <Plus size={12} strokeWidth={2.5} aria-hidden=\"true\" />\n            Add\n          </button>\n        )}\n      </header>\n\n      {/* ── Note list / empty state ───────────────────────────────────── */}\n      <div\n        className={cn(\n          \"flex-1 overflow-y-auto\",\n          // Cap height on desktop so it doesn't overflow the viewport\n          \"md:max-h-[calc(100dvh-7rem)]\",\n          \"p-3 flex flex-col gap-2.5\"\n        )}\n      >\n        {notes.length === 0 ? (\n          <PanelEmptyState />\n        ) : (\n          notes.map((note) => (\n            <NoteCard\n              key={note.id}\n              {...note}\n              onEdit={() => onEditNote(note.id)}\n              onDelete={() => onDeleteNote(note.id)}\n            />\n          ))\n        )}\n      </div>\n    </aside>\n  );\n}\n\n/* ─── Empty state ────────────────────────────────────────────────────────── */\n\nfunction PanelEmptyState() {\n  return (\n    <div\n      className=\"flex flex-col items-center justify-center gap-2 py-12 px-4 text-center\"\n      aria-live=\"polite\"\n    >\n      <span\n        aria-hidden=\"true\"\n        className={cn(\n          \"flex items-center justify-center w-10 h-10 rounded-full\",\n          \"bg-secondary text-muted-foreground\"\n        )}\n      >\n        <BookOpen size={18} strokeWidth={1.5} />\n      </span>\n      <p className=\"text-sm font-semibold font-sans text-foreground\">\n        No notes yet\n      </p>\n      <p className=\"text-xs text-muted-foreground leading-relaxed max-w-[15rem]\">\n        Select any verse text, then choose{\" \"}\n        <span className=\"font-medium text-foreground\">Add Note</span> from the\n        toolbar.\n      </p>\n    </div>\n  );\n}\n"
+      },
+      {
+        "lang": "typescriptreact",
+        "meta": {
+          "file": "components/bible/note-editor.tsx",
+          "isMerged": "true"
+        },
+        "source": "\"use client\";\n\n/**\n * NoteEditor\n *\n * Centred modal overlay for creating or editing a reader note.\n *\n * Features:\n *   - Read-only quoted verse preview above the textarea\n *   - Auto-focuses textarea on mount\n *   - Closes on Escape or clicking the backdrop\n *   - Works for both create (no initialText) and edit (initialText provided)\n *\n * Tailwind class reference:\n *   Backdrop:  fixed inset-0 z-[60] flex items-center justify-center p-4\n *   Scrim:     absolute inset-0 bg-foreground/25\n *   Dialog:    relative z-10 w-full max-w-md flex flex-col gap-4 rounded-xl\n *              bg-card border border-border shadow-2xl p-5\n *   Quote:     border-l-[3px] border-verse-highlight-border pl-3\n *              text-xs italic text-muted-foreground leading-relaxed\n *              bg-verse-highlight/40 py-1.5 pr-2 rounded-r-sm line-clamp-3\n *   Textarea:  w-full resize-none rounded-md border border-input bg-background\n *              px-3 py-2 text-sm font-sans leading-relaxed\n *              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60\n */\n\nimport { useEffect, useRef } from \"react\";\nimport { X } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\n\ninterface NoteEditorProps {\n  verseRef: string;\n  selectedText: string;\n  initialText?: string;\n  onSave: (text: string) => void;\n  onClose: () => void;\n}\n\nexport function NoteEditor({\n  verseRef,\n  selectedText,\n  initialText = \"\",\n  onSave,\n  onClose,\n}: NoteEditorProps) {\n  const textareaRef = useRef<HTMLTextAreaElement>(null);\n\n  /* Auto-focus on open */\n  useEffect(() => {\n    textareaRef.current?.focus();\n    // Place cursor at end for edits\n    const len = textareaRef.current?.value.length ?? 0;\n    textareaRef.current?.setSelectionRange(len, len);\n  }, []);\n\n  /* Escape to close */\n  useEffect(() => {\n    const onKeyDown = (e: KeyboardEvent) => {\n      if (e.key === \"Escape\") onClose();\n    };\n    document.addEventListener(\"keydown\", onKeyDown);\n    return () => document.removeEventListener(\"keydown\", onKeyDown);\n  }, [onClose]);\n\n  const handleSave = () => {\n    const value = textareaRef.current?.value.trim() ?? \"\";\n    if (value) onSave(value);\n  };\n\n  const isEditing = Boolean(initialText);\n\n  return (\n    /* Full-screen backdrop */\n    <div\n      role=\"presentation\"\n      className=\"fixed inset-0 z-[60] flex items-center justify-center p-4\"\n      onClick={(e) => {\n        if (e.target === e.currentTarget) onClose();\n      }}\n    >\n      {/* Scrim */}\n      <div\n        aria-hidden=\"true\"\n        className=\"absolute inset-0 bg-foreground/25\"\n      />\n\n      {/* Dialog */}\n      <div\n        role=\"dialog\"\n        aria-modal=\"true\"\n        aria-labelledby=\"note-editor-title\"\n        className={cn(\n          \"relative z-10 w-full max-w-md\",\n          \"flex flex-col gap-4\",\n          \"rounded-xl bg-card border border-border shadow-2xl\",\n          \"p-5\",\n          \"animate-in fade-in zoom-in-95 duration-150\"\n        )}\n      >\n        {/* Header */}\n        <div className=\"flex items-start justify-between gap-3\">\n          <h2\n            id=\"note-editor-title\"\n            className=\"text-sm font-semibold font-sans text-foreground\"\n          >\n            {isEditing ? \"Edit note\" : \"Add note\"}\n            {verseRef && (\n              <span className=\"ml-1.5 font-normal text-muted-foreground\">\n                &mdash; {verseRef}\n              </span>\n            )}\n          </h2>\n\n          <button\n            type=\"button\"\n            aria-label=\"Close note editor\"\n            onClick={onClose}\n            className={cn(\n              \"p-1 rounded text-muted-foreground shrink-0\",\n              \"hover:bg-secondary hover:text-foreground\",\n              \"transition-colors duration-100 cursor-pointer\",\n              \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n            )}\n          >\n            <X size={15} strokeWidth={2} aria-hidden=\"true\" />\n          </button>\n        </div>\n\n        {/* Verse quote preview */}\n        {selectedText && (\n          <blockquote\n            className={cn(\n              \"border-l-[3px] border-verse-highlight-border\",\n              \"pl-3 py-1.5 pr-2 rounded-r-sm\",\n              \"bg-verse-highlight/40\",\n              \"text-xs italic text-muted-foreground leading-relaxed line-clamp-3\"\n            )}\n          >\n            &ldquo;{selectedText}&rdquo;\n          </blockquote>\n        )}\n\n        {/* Textarea */}\n        <textarea\n          ref={textareaRef}\n          defaultValue={initialText}\n          placeholder=\"Write your note here...\"\n          rows={4}\n          className={cn(\n            \"w-full resize-none rounded-md\",\n            \"border border-input bg-background\",\n            \"px-3 py-2 text-sm text-foreground font-sans leading-relaxed\",\n            \"placeholder:text-muted-foreground\",\n            \"transition-shadow duration-150\",\n            \"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60\"\n          )}\n        />\n\n        {/* Actions */}\n        <div className=\"flex items-center justify-end gap-2\">\n          <button\n            type=\"button\"\n            onClick={onClose}\n            className={cn(\n              \"px-3 py-1.5 rounded-md text-sm font-medium font-sans\",\n              \"bg-secondary text-secondary-foreground\",\n              \"hover:bg-secondary/70 transition-colors duration-100 cursor-pointer\",\n              \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n            )}\n          >\n            Cancel\n          </button>\n          <button\n            type=\"button\"\n            onClick={handleSave}\n            className={cn(\n              \"px-3 py-1.5 rounded-md text-sm font-medium font-sans\",\n              \"bg-primary text-primary-foreground\",\n              \"hover:bg-primary/85 transition-colors duration-100 cursor-pointer\",\n              \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n            )}\n          >\n            {isEditing ? \"Save changes\" : \"Save note\"}\n          </button>\n        </div>\n      </div>\n    </div>\n  );\n}\n"
+      },
+      {
+        "lang": "typescriptreact",
+        "meta": {
+          "file": "app/page.tsx",
+          "isMerged": "true"
+        },
+        "source": "import { redirect } from \"next/navigation\";\n\nexport default function RootPage() {\n  redirect(\"/bible\");\n}\n"
+      },
+      {
+        "lang": "typescript",
+        "meta": {
+          "file": "hooks/use-bible-selection.tsx",
+          "isMerged": "true"
+        },
+        "source": "\"use client\";\n\n/**\n * useBibleSelection\n *\n * Tracks multi-verse text selection within a reading container and computes\n * the floating toolbar position using fixed coordinates (viewport-relative).\n *\n * Usage:\n *   const { selectedVerses, selectedText, toolbarPos, clearSelection, onContainerMouseUp }\n *     = useBibleSelection();\n *\n *   Attach `onContainerMouseUp` to the <main> reading element.\n *   Pass `toolbarPos` to <SelectionToolbar position={toolbarPos} />.\n *   Each verse element must have a `data-verse={number}` attribute.\n */\n\nimport { useState, useCallback } from \"react\";\n\nexport interface ToolbarPosition {\n  /** Fixed (viewport-relative) top, in px — position toolbar above this point */\n  top: number;\n  /** Fixed (viewport-relative) left, in px — centred on selection midpoint */\n  left: number;\n}\n\nexport interface BibleSelection {\n  selectedVerses: Set<number>;\n  selectedText: string;\n  toolbarPos: ToolbarPosition | null;\n  clearSelection: () => void;\n  onContainerMouseUp: (e: React.MouseEvent<HTMLElement>) => void;\n}\n\n/** Height of toolbar (px) + gap above the selection rect */\nconst TOOLBAR_OFFSET = 52;\n\nexport function useBibleSelection(): BibleSelection {\n  const [selectedVerses, setSelectedVerses] = useState<Set<number>>(new Set());\n  const [selectedText, setSelectedText] = useState(\"\");\n  const [toolbarPos, setToolbarPos] = useState<ToolbarPosition | null>(null);\n\n  const clearSelection = useCallback(() => {\n    setSelectedVerses(new Set());\n    setSelectedText(\"\");\n    setToolbarPos(null);\n    window.getSelection()?.removeAllRanges();\n  }, []);\n\n  const onContainerMouseUp = useCallback((e: React.MouseEvent<HTMLElement>) => {\n    // Defer so the browser finalises the selection range first\n    requestAnimationFrame(() => {\n      const selection = window.getSelection();\n\n      if (!selection || selection.isCollapsed || selection.rangeCount === 0) {\n        return;\n      }\n\n      const text = selection.toString().trim();\n      if (!text) return;\n\n      /* ── Collect verse numbers overlapping the selection ────────── */\n      const range = selection.getRangeAt(0);\n      const container = e.currentTarget;\n      const verseEls = container.querySelectorAll<HTMLElement>(\"[data-verse]\");\n\n      const hitVerses = new Set<number>();\n      verseEls.forEach((el) => {\n        const elRange = document.createRange();\n        elRange.selectNodeContents(el);\n        // Verses whose content overlaps the selected range\n        const startsBeforeEnd =\n          range.compareBoundaryPoints(Range.END_TO_START, elRange) < 0;\n        const endsAfterStart =\n          range.compareBoundaryPoints(Range.START_TO_END, elRange) > 0;\n        if (startsBeforeEnd && endsAfterStart) {\n          const num = parseInt(el.dataset.verse ?? \"0\", 10);\n          if (num > 0) hitVerses.add(num);\n        }\n      });\n\n      setSelectedVerses(hitVerses);\n      setSelectedText(text);\n\n      /* ── Toolbar position: centred above the selection rect ──────── */\n      const rect = range.getBoundingClientRect();\n      // Use fixed positioning — top/left are viewport-relative\n      setToolbarPos({\n        top: rect.top - TOOLBAR_OFFSET,\n        left: rect.left + rect.width / 2,\n      });\n    });\n  }, []);\n\n  return {\n    selectedVerses,\n    selectedText,\n    toolbarPos,\n    clearSelection,\n    onContainerMouseUp,\n  };\n}\n"
+      },
+      {
+        "lang": "typescriptreact",
+        "meta": {
+          "file": "app/bible/page.tsx"
+        },
+        "source": "\"use client\";\n\n/**\n * /app/bible/page.tsx  — Bible Reader\n *\n * Component tree:\n *   BiblePage\n *   ├─ ReaderHeader        sticky top bar: breadcrumb, translation badge, notes toggle\n *   ├─ (main content row)\n *   │   ├─ ReadingColumn   centred prose column with VerseBlock × N + chapter nav\n *   │   └─ NotesPanel      right sidebar (md+) / stacked section (<md)\n *   ├─ SelectionToolbar    fixed floating pill above active text selection\n *   └─ NoteEditor          centred modal for create / edit\n *\n * Layout rules:\n *   Desktop: flex-row, reading column is max-w-2xl centred in remaining space,\n *            NotesPanel is sticky right sidebar w-72 xl:w-80.\n *   Mobile:  flex-col, NotesPanel collapses below the reading text and is\n *            toggled by the header button.\n */\n\nimport { useState, useCallback, useId } from \"react\";\nimport { BookOpen, ChevronLeft, ChevronRight, StickyNote } from \"lucide-react\";\nimport { cn } from \"@/lib/utils\";\nimport { VerseBlock } from \"@/components/bible/verse-block\";\nimport { SelectionToolbar } from \"@/components/bible/selection-toolbar\";\nimport { NotesPanel, type Note } from \"@/components/bible/notes-panel\";\nimport { NoteEditor } from \"@/components/bible/note-editor\";\nimport { useBibleSelection } from \"@/hooks/use-bible-selection\";\n\n/* ─── Sample data ────────────────────────────────────────────────────────── */\n\nconst CHAPTER = { book: \"John\", chapter: 3 };\n\nconst VERSES = [\n  { number: 1,  text: \"There was a man of the Pharisees named Nicodemus, a ruler of the Jews.\" },\n  { number: 2,  text: \"This man came to Jesus by night and said to Him, \\\"Rabbi, we know that You are a teacher come from God; for no one can do these signs that You do unless God is with him.\\\"\" },\n  { number: 3,  text: \"Jesus answered and said to him, \\\"Most assuredly, I say to you, unless one is born again, he cannot see the kingdom of God.\\\"\" },\n  { number: 4,  text: \"Nicodemus said to Him, \\\"How can a man be born when he is old? Can he enter a second time into his mother's womb and be born?\\\"\" },\n  { number: 5,  text: \"Jesus answered, \\\"Most assuredly, I say to you, unless one is born of water and the Spirit, he cannot enter the kingdom of God.\\\"\" },\n  { number: 6,  text: \"That which is born of the flesh is flesh, and that which is born of the Spirit is spirit.\" },\n  { number: 7,  text: \"Do not marvel that I said to you, 'You must be born again.'\" },\n  { number: 8,  text: \"The wind blows where it wishes, and you hear the sound of it, but cannot tell where it comes from and where it goes. So is everyone who is born of the Spirit.\" },\n  { number: 9,  text: \"Nicodemus answered and said to Him, \\\"How can these things be?\\\"\" },\n  { number: 10, text: \"Jesus answered and said to him, \\\"Are you the teacher of Israel, and do not know these things?\\\"\" },\n  { number: 11, text: \"Most assuredly, I say to you, We speak what We know and testify what We have seen, and you do not receive Our witness.\" },\n  { number: 12, text: \"If I have told you earthly things and you do not believe, how will you believe if I tell you heavenly things?\" },\n  { number: 13, text: \"No one has ascended to heaven but He who came down from heaven, that is, the Son of Man who is in heaven.\" },\n  { number: 14, text: \"And as Moses lifted up the serpent in the wilderness, even so must the Son of Man be lifted up,\" },\n  { number: 15, text: \"that whoever believes in Him should not perish but have eternal life.\" },\n  { number: 16, text: \"For God so loved the world that He gave His only begotten Son, that whoever believes in Him should not perish but have everlasting life.\" },\n  { number: 17, text: \"For God did not send His Son into the world to condemn the world, but that the world through Him might be saved.\" },\n  { number: 18, text: \"He who believes in Him is not condemned; but he who does not believe is condemned already, because he has not believed in the name of the only begotten Son of God.\" },\n  { number: 19, text: \"And this is the condemnation, that the light has come into the world, and men loved darkness rather than light, because their deeds were evil.\" },\n  { number: 20, text: \"For everyone practicing evil hates the light and does not come to the light, lest his deeds should be exposed.\" },\n  { number: 21, text: \"But he who does the truth comes to the light, that his deeds may be clearly seen, that they have been done in God.\" },\n];\n\nconst INITIAL_NOTES: Note[] = [\n  {\n    id: \"n1\",\n    verseRef: \"v. 3\",\n    selectedText: \"unless one is born again, he cannot see the kingdom of God.\",\n    noteText: \"The Greek word 'anothen' means both 'again' and 'from above' — Nicodemus takes the earthly meaning, Jesus intends the heavenly.\",\n  },\n  {\n    id: \"n2\",\n    verseRef: \"v. 16\",\n    selectedText: \"For God so loved the world that He gave His only begotten Son\",\n    noteText: \"The hinge verse of the gospel. Scope: the whole world (kosmos). Cost: the only Son. Condition: belief. Result: not perish, but eternal life.\",\n  },\n];\n\n/* ─── Page ───────────────────────────────────────────────────────────────── */\n\nexport default function BiblePage() {\n  const {\n    selectedVerses,\n    selectedText,\n    toolbarPos,\n    clearSelection,\n    onContainerMouseUp,\n  } = useBibleSelection();\n\n  const [highlighted, setHighlighted] = useState<Set<number>>(new Set([16]));\n  const [notes, setNotes] = useState<Note[]>(INITIAL_NOTES);\n  const [notesPanelOpen, setNotesPanelOpen] = useState(true);\n\n  const [editorState, setEditorState] = useState<{\n    open: boolean;\n    editId?: string;\n    verseRef: string;\n    selectedText: string;\n    initialText: string;\n  }>({ open: false, verseRef: \"\", selectedText: \"\", initialText: \"\" });\n\n  const uid = useId();\n\n  /* ── Toolbar actions ──────────────────────────────────────────────────── */\n\n  const handleHighlight = useCallback(() => {\n    setHighlighted((prev) => {\n      const next = new Set(prev);\n      selectedVerses.forEach((v) => next.add(v));\n      return next;\n    });\n    clearSelection();\n  }, [selectedVerses, clearSelection]);\n\n  const handleAddNote = useCallback(() => {\n    if (!selectedVerses.size) return;\n    const sorted = [...selectedVerses].sort((a, b) => a - b);\n    const verseRef =\n      sorted.length === 1\n        ? `v. ${sorted[0]}`\n        : `v. ${sorted[0]}\\u2013${sorted[sorted.length - 1]}`;\n    setEditorState({ open: true, verseRef, selectedText, initialText: \"\" });\n  }, [selectedVerses, selectedText]);\n\n  /* ── Note CRUD ────────────────────────────────────────────────────────── */\n\n  const handleSaveNote = useCallback(\n    (text: string) => {\n      if (editorState.editId) {\n        setNotes((prev) =>\n          prev.map((n) =>\n            n.id === editorState.editId ? { ...n, noteText: text } : n\n          )\n        );\n      } else {\n        const newNote: Note = {\n          id: `${uid}-${Date.now()}`,\n          verseRef: editorState.verseRef,\n          selectedText: editorState.selectedText,\n          noteText: text,\n        };\n        setNotes((prev) => [...prev, newNote]);\n        // Auto-highlight the associated verses\n        const vNums = parseVerseRef(editorState.verseRef);\n        setHighlighted((prev) => {\n          const next = new Set(prev);\n          vNums.forEach((v) => next.add(v));\n          return next;\n        });\n      }\n      setEditorState((s) => ({ ...s, open: false, editId: undefined }));\n      clearSelection();\n    },\n    [editorState, uid, clearSelection]\n  );\n\n  const handleEditNote = useCallback(\n    (id: string) => {\n      const note = notes.find((n) => n.id === id);\n      if (!note) return;\n      setEditorState({\n        open: true,\n        editId: id,\n        verseRef: note.verseRef,\n        selectedText: note.selectedText,\n        initialText: note.noteText,\n      });\n    },\n    [notes]\n  );\n\n  const handleDeleteNote = useCallback((id: string) => {\n    setNotes((prev) => prev.filter((n) => n.id !== id));\n  }, []);\n\n  const chapterRef = `${CHAPTER.book} ${CHAPTER.chapter}`;\n\n  return (\n    <div className=\"flex flex-col min-h-dvh bg-background\">\n\n      {/* ── Sticky header ──────────────────────────────────────────────── */}\n      <ReaderHeader\n        chapterRef={chapterRef}\n        noteCount={notes.length}\n        notesPanelOpen={notesPanelOpen}\n        onToggleNotes={() => setNotesPanelOpen((v) => !v)}\n      />\n\n      {/* ── Content row ────────────────────────────────────────────────── */}\n      {/*\n        Desktop: flex-row — reading column grows to fill space left of panel.\n        Mobile:  flex-col — panel stacks below.\n      */}\n      <div className=\"flex flex-1 flex-col md:flex-row items-start\">\n\n        {/* Reading column */}\n        <main\n          className={cn(\n            \"flex-1 min-w-0\",\n            \"px-5 sm:px-8 lg:px-14 py-8\",\n            // Centre prose within the available column width\n            \"max-w-2xl mx-auto w-full\"\n          )}\n          // Dismiss floating toolbar when clicking outside a verse\n          onMouseUp={onContainerMouseUp}\n          onMouseDown={(e) => {\n            // Clear selection when clicking on the container itself (not a verse)\n            const target = e.target as HTMLElement;\n            if (!target.closest(\"[data-verse]\")) {\n              clearSelection();\n            }\n          }}\n        >\n          {/* Chapter heading */}\n          <header className=\"mb-8\">\n            <p className=\"text-[0.7rem] font-sans font-semibold tracking-widest uppercase text-muted-foreground mb-1\">\n              {CHAPTER.book}\n            </p>\n            <h1 className=\"font-serif text-4xl font-bold text-foreground text-balance leading-tight\">\n              Chapter {CHAPTER.chapter}\n            </h1>\n            <div className=\"mt-3 h-px bg-border\" aria-hidden=\"true\" />\n          </header>\n\n          {/* Verse list */}\n          <section\n            aria-label={`${chapterRef} — verse text`}\n            className=\"flex flex-col gap-0.5\"\n          >\n            {VERSES.map((v) => (\n              <VerseBlock\n                key={v.number}\n                number={v.number}\n                text={v.text}\n                highlighted={highlighted.has(v.number)}\n                selected={selectedVerses.has(v.number)}\n                hasNote={notes.some((n) =>\n                  parseVerseRef(n.verseRef).includes(v.number)\n                )}\n              />\n            ))}\n          </section>\n\n          {/* Chapter navigation */}\n          <nav\n            aria-label=\"Chapter navigation\"\n            className=\"mt-10 flex items-center justify-between\"\n          >\n            <ChapterNavButton\n              icon={<ChevronLeft size={15} aria-hidden=\"true\" />}\n              label=\"Previous chapter\"\n            />\n            <ChapterNavButton\n              icon={<ChevronRight size={15} aria-hidden=\"true\" />}\n              label=\"Next chapter\"\n              iconAfter\n            />\n          </nav>\n        </main>\n\n        {/* Notes panel */}\n        <NotesPanel\n          chapterRef={chapterRef}\n          notes={notes}\n          open={notesPanelOpen}\n          onAddNote={() =>\n            setEditorState({\n              open: true,\n              verseRef: \"\",\n              selectedText: \"\",\n              initialText: \"\",\n            })\n          }\n          onEditNote={handleEditNote}\n          onDeleteNote={handleDeleteNote}\n        />\n      </div>\n\n      {/* ── Floating selection toolbar ──────────────────────────────────── */}\n      {toolbarPos && (\n        <SelectionToolbar\n          position={toolbarPos}\n          onHighlight={handleHighlight}\n          onAddNote={handleAddNote}\n          onCancel={clearSelection}\n        />\n      )}\n\n      {/* ── Note editor modal ───────────────────────────────────────────── */}\n      {editorState.open && (\n        <NoteEditor\n          verseRef={editorState.verseRef || \"General\"}\n          selectedText={editorState.selectedText}\n          initialText={editorState.initialText}\n          onSave={handleSaveNote}\n          onClose={() =>\n            setEditorState((s) => ({ ...s, open: false, editId: undefined }))\n          }\n        />\n      )}\n    </div>\n  );\n}\n\n/* ─── ReaderHeader ───────────────────────────────────────────────────────── */\n\ninterface ReaderHeaderProps {\n  chapterRef: string;\n  noteCount: number;\n  notesPanelOpen: boolean;\n  onToggleNotes: () => void;\n}\n\nfunction ReaderHeader({\n  chapterRef,\n  noteCount,\n  notesPanelOpen,\n  onToggleNotes,\n}: ReaderHeaderProps) {\n  return (\n    <header\n      className={cn(\n        \"sticky top-0 z-30 shrink-0 h-14\",\n        \"flex items-center justify-between gap-4\",\n        \"px-5 sm:px-8\",\n        \"bg-background/95 backdrop-blur-sm border-b border-border\"\n      )}\n    >\n      {/* Breadcrumb */}\n      <div className=\"flex items-center gap-2 min-w-0\">\n        <BookOpen\n          size={17}\n          strokeWidth={1.5}\n          className=\"text-primary shrink-0\"\n          aria-hidden=\"true\"\n        />\n        <span className=\"font-sans text-sm font-semibold text-foreground truncate\">\n          {chapterRef}\n        </span>\n      </div>\n\n      {/* Right controls */}\n      <div className=\"flex items-center gap-2\">\n        {/* Translation badge */}\n        <span\n          className={cn(\n            \"hidden sm:inline-flex items-center\",\n            \"px-2 py-0.5 rounded\",\n            \"text-[0.65rem] font-sans font-semibold tracking-widest uppercase\",\n            \"bg-secondary text-secondary-foreground\"\n          )}\n        >\n          NKJV\n        </span>\n\n        {/* Notes panel toggle */}\n        <button\n          type=\"button\"\n          aria-label={notesPanelOpen ? \"Hide notes\" : \"Show notes\"}\n          aria-pressed={notesPanelOpen}\n          onClick={onToggleNotes}\n          className={cn(\n            \"relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-md\",\n            \"text-xs font-medium font-sans\",\n            \"transition-colors duration-100 cursor-pointer\",\n            \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\",\n            notesPanelOpen\n              ? \"bg-primary text-primary-foreground\"\n              : \"bg-secondary text-secondary-foreground hover:bg-secondary/70\"\n          )}\n        >\n          <StickyNote size={13} strokeWidth={2} aria-hidden=\"true\" />\n          <span className=\"hidden sm:inline\">Notes</span>\n          {noteCount > 0 && (\n            <span\n              aria-label={`${noteCount} notes`}\n              className={cn(\n                \"flex items-center justify-center tabular-nums leading-none\",\n                \"w-4 h-4 rounded-full text-[0.6rem] font-bold\",\n                notesPanelOpen\n                  ? \"bg-primary-foreground/20 text-primary-foreground\"\n                  : \"bg-primary text-primary-foreground\"\n              )}\n            >\n              {noteCount}\n            </span>\n          )}\n        </button>\n      </div>\n    </header>\n  );\n}\n\n/* ─── ChapterNavButton ───────────────────────────────────────────────────── */\n\ninterface ChapterNavButtonProps {\n  icon: React.ReactNode;\n  label: string;\n  iconAfter?: boolean;\n}\n\nfunction ChapterNavButton({\n  icon,\n  label,\n  iconAfter = false,\n}: ChapterNavButtonProps) {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      className={cn(\n        \"flex items-center gap-1.5 px-3 py-2 rounded-md\",\n        \"text-sm font-medium font-sans text-muted-foreground\",\n        \"border border-border bg-card\",\n        \"hover:bg-secondary hover:text-foreground\",\n        \"transition-colors duration-150 cursor-pointer\",\n        \"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring\"\n      )}\n    >\n      {!iconAfter && icon}\n      <span>{label}</span>\n      {iconAfter && icon}\n    </button>\n  );\n}\n\n/* ─── Utility ────────────────────────────────────────────────────────────── */\n\n/** Parse \"v. 3\" or \"v. 3–5\" into an array of verse numbers. */\nfunction parseVerseRef(ref: string): number[] {\n  const match = ref.match(/(\\d+)(?:[–\\-](\\d+))?/);\n  if (!match) return [];\n  const start = parseInt(match[1], 10);\n  const end = match[2] ? parseInt(match[2], 10) : start;\n  return Array.from({ length: end - start + 1 }, (_, i) => start + i);\n}\n"
+      }
+    ],
+    "demo": "https://demo-kzmlp1xojpe1rdtvw18y.vusercontent.net?__v0_token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..E-SM8bSeK59dexcM.E6IY_FWIOd4u9YmX2lS0nvkT1cQKGGGmP4pwVZ-Mw9sa9R9plmAtAkrVrqWn9jQfYC0i2Hamj0lRCSoQBvZJmDJyEh7qd_14qQZoiTqmf0nv9kyY0CTjgEBF9FSyz-Hh-ucu7fgPx4VhInABjZeG7xTat32qhel6b2c_GZutRZ1ChoNEcTwv8wWSEglbzVkzJfJ4rlSho8Tv2UTkTtTI6DmsaLKZHvGPbactB3F-YqjY2l4FahyTltysj5yAJh-NNb5P08Om79_rpA.mM91ha_nDT6FejiA25O2ag",
+    "text": "Good — I have a complete picture of all existing files. I can see several issues to fix and improvements to make:\n\n1. The `SelectionToolbar` uses `position: absolute` but should use `position: fixed` since it positions relative to the viewport (scroll + viewport coords).\n2. The toolbar caret points the wrong way — it should point downward toward the text, meaning the toolbar sits *above* the selection, so the caret is on the *bottom*.\n3. The `useBibleSelection` toolbar offset calculation (`top - 48`) positions the toolbar above the selection rect, but since it's `absolute` in the document, it needs the full scroll offset. When using `fixed` positioning we just use `rect.top`.\n4. The `VerseBlock` uses `bg-primary/8` which isn't a valid Tailwind v4 class (should be `bg-primary/[0.08]`).\n5. The `NotesPanel` on mobile needs a cleaner toggle with a slide/show rather than just `hidden`.\n6. The `NoteEditor` modal `backdrop-blur` class needs a valid value.\n7. The toolbar label logic splits on space to get first word — better to use explicit short labels.\n8. The `BibleReaderPage` layout needs the reading column to be properly centered when the panel is hidden.\n\nLet me rewrite all five component files properly:Now rewrite the main page with corrected layout — `flex-1 mx-auto` centering, a mobile notes drawer toggle that actually shows the panel label, and proper `onMouseDown` dismiss for the toolbar:Here is a summary of every change made and why:\n\n**`useBibleSelection`** — Switched from document-relative `top + scrollY` to pure viewport-relative (`rect.top`) so the toolbar uses `position: fixed` cleanly without scroll math errors. The verse-overlap boundary check logic is unchanged.\n\n**`SelectionToolbar`** — Replaced the `absolute` positioning + inline `style.top` with `position: fixed` via an inline `style` object (necessary because Tailwind purges arbitrary `top`/`left` values that come from runtime state). The CSS triangle caret is now rendered via an inline `style` object to avoid Tailwind utility conflicts, and button labels are explicit strings rather than splitting on spaces. The `Cancel` button is icon-only on the pill to save space.\n\n**`VerseBlock`** — Fixed the selected-state class from `bg-primary/8` (invalid in Tailwind v4) to `bg-primary/[0.07]`. The `data-verse` attribute is placed directly on the `<p>` element so `querySelectorAll(\"[data-verse]\")` in the hook always finds it.\n\n**`NoteCard`** — Made `selectedText` rendering conditional (skips the `<blockquote>` when empty, which happens when a note is created without a selection). The `id` prop is prefixed `_id` to silence the unused-var lint warning while still keeping the prop in the public interface.\n\n**`NotesPanel`** — Desktop panel is now `md:sticky md:top-14` (aligns with the `h-14` header), and the mobile layout uses `flex-col md:flex-row` on the parent content row rather than absolute positioning.\n\n**`BiblePage`** — The content row is now `flex-col md:flex-row` so the panel naturally stacks below on mobile. A `onMouseDown` handler on `<main>` calls `clearSelection()` when clicking outside any `[data-verse]` element, dismissing a stale toolbar.",
+    "permissions": {
+      "write": true
+    },
+    "metadata": {}
+  }
+}

@@ -1,0 +1,13 @@
+model = "gpt-5.2-codex"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[mcp_servers.v0_bridge]
+command = "node"
+args = ["tools/v0-bridge/src/server.js"]
+enabled = true
+env_vars = ["V0_API_KEY"]
+startup_timeout_sec = 20
+tool_timeout_sec = 180
+
+# Optional: if you also keep a user-level Codex config, project config wins for this repo.

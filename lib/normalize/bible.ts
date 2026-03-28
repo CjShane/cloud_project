@@ -2,6 +2,7 @@ import { AppError } from "@/lib/errors/app-error";
 import { normalizeText } from "@/lib/normalize/normalize-text";
 
 type BibleApiVerseRaw = {
+  book?: unknown;
   book_name?: unknown;
   chapter?: unknown;
   verse?: unknown;
@@ -62,7 +63,9 @@ export function normalizeBiblePassage(
 
   const verses = raw.verses.map((entry): NormalizedVerse => {
     const verseRaw = entry as BibleApiVerseRaw;
-    const book = toText(verseRaw.book_name, "book_name");
+    const bookSource =
+      typeof verseRaw.book_name === "string" ? verseRaw.book_name : verseRaw.book;
+    const book = toText(bookSource, "book");
     const chapter = toNumber(verseRaw.chapter, "chapter");
     const verse = toNumber(verseRaw.verse, "verse");
     const text = toText(verseRaw.text, "text");

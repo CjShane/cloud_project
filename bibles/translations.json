@@ -1,0 +1,82 @@
+[
+  {
+    "id": "asv",
+    "label": "ASV - American Standard Version (1901)",
+    "name": "American Standard Version (1901)",
+    "language": "English",
+    "source": "eng-asv.zefania.xml",
+    "format": "Zefania"
+  },
+  {
+    "id": "bbe",
+    "label": "BBE - Bible in Basic English",
+    "name": "Bible in Basic English",
+    "language": "English",
+    "source": "eng-bbe.usfx.xml",
+    "format": "USFX"
+  },
+  {
+    "id": "darby",
+    "label": "DARBY - Darby Bible",
+    "name": "Darby Bible",
+    "language": "English",
+    "source": "eng-darby.zefania.xml",
+    "format": "Zefania"
+  },
+  {
+    "id": "dra",
+    "label": "DRA - Douay-Rheims 1899 American Edition",
+    "name": "Douay-Rheims 1899 American Edition",
+    "language": "English",
+    "source": "eng-dra.zefania.xml",
+    "format": "Zefania"
+  },
+  {
+    "id": "oeb-cw",
+    "label": "OEB-CW - Open English Bible, Commonwealth Edition",
+    "name": "Open English Bible, Commonwealth Edition",
+    "language": "English (UK)",
+    "source": "eng-gb-oeb.osis.xml",
+    "format": "OSIS"
+  },
+  {
+    "id": "webbe",
+    "label": "WEBBE - World English Bible, British Edition",
+    "name": "World English Bible, British Edition",
+    "language": "English (UK)",
+    "source": "eng-gb-webbe.usfx.xml",
+    "format": "USFX"
+  },
+  {
+    "id": "kjv",
+    "label": "KJV - King James Version",
+    "name": "King James Version",
+    "language": "English",
+    "source": "eng-kjv.osis.xml",
+    "format": "OSIS"
+  },
+  {
+    "id": "oeb-us",
+    "label": "OEB-US - Open English Bible, US Edition",
+    "name": "Open English Bible, US Edition",
+    "language": "English (US)",
+    "source": "eng-us-oeb.osis.xml",
+    "format": "OSIS"
+  },
+  {
+    "id": "web",
+    "label": "WEB - World English Bible",
+    "name": "World English Bible",
+    "language": "English",
+    "source": "eng-web.usfx.xml",
+    "format": "USFX"
+  },
+  {
+    "id": "ylt",
+    "label": "YLT - Young's Literal Translation (NT only)",
+    "name": "Young's Literal Translation (NT only)",
+    "language": "English",
+    "source": "eng-ylt.zefania.xml",
+    "format": "Zefania"
+  }
+]

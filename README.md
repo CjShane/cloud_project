@@ -79,7 +79,8 @@ EC2-first Next.js application with TypeScript, Tailwind CSS, and reusable compon
 
 ## Current Feature
 
-- Bible lookup route: `/bible`
+- Bible reader route: `/bible?book=GEN&chapter=1&translation=web`
+- Bible lookup route: `/lookup`
 - Internal API route: `/api/bible?reference=John%203:16&translation=web`
 - Daily verse route: `/daily`
 - Daily API route: `/api/daily?translation=web`
