@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Book, Menu, Search, Sun, Moon, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { AccountStatus } from "@/components/auth/account-status"
 
 const NAV_LINKS = [
   { label: "Read", href: "/bible" },
@@ -42,16 +43,17 @@ export function Header() {
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setIsMounted(true)
-    const saved = readStoredTheme()
-    if (saved) {
-      setTheme(saved)
-      return
-    }
-    const prefersDark =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    setTheme(prefersDark ? "dark" : "light")
+    const timer = window.setTimeout(() => {
+      setIsMounted(true)
+      const saved = readStoredTheme()
+      if (saved) {
+        setTheme(saved)
+        return
+      }
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      setTheme(prefersDark ? "dark" : "light")
+    }, 0)
+    return () => window.clearTimeout(timer)
   }, [])
 
   useEffect(() => {
@@ -124,6 +126,8 @@ export function Header() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
+          <AccountStatus />
+
           <Button
             variant="ghost"
             size="icon"
@@ -167,6 +171,13 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/account"
+              className="block rounded-md px-3 py-2 text-base font-medium text-foreground hover:bg-secondary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Account
+            </Link>
             <div className="pt-2">
               <Button asChild className="h-10 w-full">
                 <Link href="/bible">Start Reading</Link>

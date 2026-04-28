@@ -17,7 +17,6 @@ import {
   fetchComparedPassages,
   type ComparedPassages,
 } from "@/lib/api/compare-passages"
-import { BOOKS } from "@/lib/bible/books"
 import type { NormalizedPassage } from "@/lib/normalize/bible"
 import type { DailyVerseResult } from "@/lib/api/daily-verse"
 

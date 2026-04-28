@@ -47,6 +47,8 @@ EC2-first Next.js application with TypeScript, Tailwind CSS, and reusable compon
 - Copy `.env.example` to `.env` for local development.
 - Use environment variables for all deploy-time configuration.
 - Never commit secrets.
+- Required runtime values: `DATABASE_URL`, `AUTH_SECRET`, `SESSION_COOKIE_NAME`, `SESSION_DAYS`, `PORT`, `NODE_ENV`.
+- One-time MySQL bootstrap values: `MYSQL_ADMIN_URL`, `MYSQL_DATABASE`, `MYSQL_APP_USER`, `MYSQL_APP_PASSWORD`.
 
 ## Deployment Baseline (EC2)
 
@@ -54,6 +56,8 @@ EC2-first Next.js application with TypeScript, Tailwind CSS, and reusable compon
 - Start: `npm start`
 - Runtime: Linux EC2 instance (typically behind Nginx or ALB)
 - Port: app must honor `PORT` environment variable
+- Deployment guide: `docs/EC2_DEPLOYMENT.md`
+- MySQL setup: `npm run db:bootstrap:mysql` once, then `npm run db:migrate` for future releases
 
 ## Pre-Development Checklist
 

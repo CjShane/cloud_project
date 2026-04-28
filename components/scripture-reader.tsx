@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Check, Copy, ExternalLink } from "lucide-react"
+import { Check, Copy } from "lucide-react"
 import type { NormalizedPassage } from "@/lib/normalize/bible"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,7 +14,7 @@ type ScriptureReaderProps = {
 export function ScriptureReader({
   initialPassage,
 }: ScriptureReaderProps) {
-  const [passage, setPassage] = useState(initialPassage)
+  const passage = initialPassage
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null)
   const [copied, setCopied] = useState(false)
   const continueHref = "/bible?book=GEN&chapter=1&translation=web"
@@ -94,7 +94,7 @@ export function ScriptureReader({
                     onClick={async () => {
                       try {
                         await navigator.clipboard.writeText(
-                          `${verseText} (${reference}:${selectedVerse})`,
+                          `${verseText} (${passage.reference}:${selectedVerse})`,
                         )
                         setCopied(true)
                         setTimeout(() => setCopied(false), 2000)

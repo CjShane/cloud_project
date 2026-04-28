@@ -39,8 +39,10 @@ export function useTranslations(bookId?: string) {
 
   useEffect(() => {
     if (cachedTranslations.has(cacheKey)) {
-      setData(cachedTranslations.get(cacheKey) ?? []);
-      setIsLoading(false);
+      queueMicrotask(() => {
+        setData(cachedTranslations.get(cacheKey) ?? []);
+        setIsLoading(false);
+      });
       return;
     }
 

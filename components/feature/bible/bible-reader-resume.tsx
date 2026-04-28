@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getReaderProgress } from "@/lib/storage/reader-progress";
+import { loadReaderProgress } from "@/lib/storage/reader-sync";
 
 type BibleReaderResumeProps = {
   hasExplicitParams: boolean;
@@ -16,18 +16,24 @@ export function BibleReaderResume({ hasExplicitParams }: BibleReaderResumeProps)
       return;
     }
 
-    const progress = getReaderProgress();
-    if (!progress) {
-      return;
-    }
+    let active = true;
+    loadReaderProgress().then((progress) => {
+      if (!active || !progress) {
+        return;
+      }
 
-    const params = new URLSearchParams({
-      book: progress.bookId,
-      chapter: String(progress.chapter),
-      translation: progress.translation,
+      const params = new URLSearchParams({
+        book: progress.bookId,
+        chapter: String(progress.chapter),
+        translation: progress.translation,
+      });
+
+      router.replace(`/bible?${params.toString()}`);
     });
 
-    router.replace(`/bible?${params.toString()}`);
+    return () => {
+      active = false;
+    };
   }, [hasExplicitParams, router]);
 
   return null;

@@ -1,36 +1,15 @@
-export type HighlightNote = {
-  id: string;
-  bookId: string;
-  chapter: number;
-  translation: string;
-  startVerse: number;
-  endVerse: number;
-  startOffset: number;
-  endOffset: number;
-  text: string;
-  note: string;
-  createdAt: number;
-  updatedAt: number;
-};
+import {
+  normalizeHighlightNotes,
+  normalizeHighlightNote,
+} from "@/lib/reader/normalize";
+import type { HighlightNote } from "@/lib/reader/types";
+
+export type { HighlightNote } from "@/lib/reader/types";
 
 const STORAGE_KEY = "reader_notes_v1";
 
 function isBrowser() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
-}
-
-function isValidNote(note: HighlightNote) {
-  return (
-    typeof note.id === "string" &&
-    note.id.length > 0 &&
-    typeof note.bookId === "string" &&
-    typeof note.translation === "string" &&
-    typeof note.chapter === "number" &&
-    typeof note.startVerse === "number" &&
-    typeof note.endVerse === "number" &&
-    typeof note.startOffset === "number" &&
-    typeof note.endOffset === "number"
-  );
 }
 
 export function getReaderNotes(): HighlightNote[] {
@@ -42,8 +21,7 @@ export function getReaderNotes(): HighlightNote[] {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isValidNote) as HighlightNote[];
+    return normalizeHighlightNotes(parsed);
   } catch {
     return [];
   }
@@ -55,7 +33,10 @@ export function setReaderNotes(notes: HighlightNote[]) {
   }
 
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(notes.flatMap((note) => normalizeHighlightNote(note) ?? [])),
+    );
   } catch {
     // Ignore storage errors.
   }

@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  getReaderNotes,
   setReaderNotes,
   type HighlightNote,
 } from "@/lib/storage/reader-notes";
+import {
+  loadReaderNotes,
+  updateReaderNoteInAccount,
+} from "@/lib/storage/reader-sync";
 import { BOOKS } from "@/lib/bible/books";
 import { NotesCard } from "@/components/feature/notes/notes-card";
 import { TranslationSelect } from "@/components/feature/bible/translation-select";
@@ -42,7 +45,7 @@ function groupNotesByBook(notes: HighlightNote[]) {
   return grouped;
 }
 
-export default function NotesPage() {
+function NotesPageContent() {
   const searchParams = useSearchParams();
   const focusedNoteId = searchParams.get("note") ?? "";
   const [notes, setNotes] = useState<HighlightNote[]>([]);
@@ -53,10 +56,19 @@ export default function NotesPage() {
   const [selectedTranslation, setSelectedTranslation] = useState("all");
 
   useEffect(() => {
-    setNotes(getReaderNotes());
+    let active = true;
+    loadReaderNotes().then((loadedNotes) => {
+      if (active) {
+        setNotes(loadedNotes);
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
     if (!focusedNoteId) {
       setActiveFocus("");
       return;
@@ -76,8 +88,10 @@ export default function NotesPage() {
     focusedTimer.current = window.setTimeout(() => {
       setActiveFocus("");
     }, 2500);
+    }, 0);
 
     return () => {
+      window.clearTimeout(timer);
       if (focusedTimer.current) {
         window.clearTimeout(focusedTimer.current);
       }
@@ -135,6 +149,7 @@ export default function NotesPage() {
         note.id === id ? { ...note, note: value, updatedAt: now } : note,
       );
       setReaderNotes(next);
+      void updateReaderNoteInAccount(id, value);
       return next;
     });
   };
@@ -255,6 +270,20 @@ export default function NotesPage() {
         </div>
       )}
     </section>
+  );
+}
+
+export default function NotesPage() {
+  return (
+    <Suspense
+      fallback={
+        <section className="mx-auto w-full max-w-5xl px-4 py-10 text-sm text-muted-foreground sm:px-6 lg:px-8">
+          Loading notes...
+        </section>
+      }
+    >
+      <NotesPageContent />
+    </Suspense>
   );
 }
 

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { BookMeta } from "@/lib/bible/books";
 import { setReaderProgress } from "@/lib/storage/reader-progress";
+import { saveReaderProgressToAccount } from "@/lib/storage/reader-sync";
 import { TranslationSelect } from "@/components/feature/bible/translation-select";
 
 type BibleReaderControlsProps = {
@@ -48,11 +49,13 @@ export function BibleReaderControls({
         event.preventDefault();
         const normalizedTranslation =
           translationId.trim().toLowerCase() || "web";
-        setReaderProgress({
+        const progress = {
           bookId,
           chapter,
           translation: normalizedTranslation,
-        });
+        };
+        setReaderProgress(progress);
+        void saveReaderProgressToAccount(progress);
         router.push(buildReaderUrl(bookId, chapter, normalizedTranslation));
       }}
       className="grid gap-3 rounded-lg border border-border bg-card p-4 text-sm text-foreground md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"

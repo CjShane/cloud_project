@@ -1,8 +1,7 @@
-export type ReaderProgress = {
-  bookId: string;
-  chapter: number;
-  translation: string;
-};
+import { normalizeReaderProgress } from "@/lib/reader/normalize";
+import type { ReaderProgress } from "@/lib/reader/types";
+
+export type { ReaderProgress } from "@/lib/reader/types";
 
 const STORAGE_KEY = "reader_progress_v1";
 
@@ -18,25 +17,7 @@ export function getReaderProgress(): ReaderProgress | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<ReaderProgress>;
-
-    if (
-      typeof parsed.bookId !== "string" ||
-      !parsed.bookId.trim() ||
-      typeof parsed.translation !== "string" ||
-      !parsed.translation.trim() ||
-      typeof parsed.chapter !== "number" ||
-      !Number.isFinite(parsed.chapter) ||
-      parsed.chapter <= 0
-    ) {
-      return null;
-    }
-
-    return {
-      bookId: parsed.bookId,
-      chapter: parsed.chapter,
-      translation: parsed.translation,
-    };
+    return normalizeReaderProgress(JSON.parse(raw));
   } catch {
     return null;
   }
@@ -48,11 +29,8 @@ export function setReaderProgress(progress: ReaderProgress) {
   }
 
   try {
-    const payload: ReaderProgress = {
-      bookId: progress.bookId,
-      chapter: progress.chapter,
-      translation: progress.translation,
-    };
+    const payload = normalizeReaderProgress(progress);
+    if (!payload) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {
     // Ignore storage errors.

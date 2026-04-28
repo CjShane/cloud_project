@@ -5,6 +5,13 @@ import type { NormalizedPassage } from "@/lib/normalize/bible";
 import type { HighlightNote } from "@/lib/storage/reader-notes";
 import { getReaderNotes, setReaderNotes } from "@/lib/storage/reader-notes";
 import { setReaderProgress } from "@/lib/storage/reader-progress";
+import {
+  deleteReaderNoteFromAccount,
+  loadReaderNotes,
+  saveReaderNoteToAccount,
+  saveReaderProgressToAccount,
+  updateReaderNoteInAccount,
+} from "@/lib/storage/reader-sync";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -139,12 +146,25 @@ export function BibleReaderAnnotations({
   const [draftNote, setDraftNote] = useState<SelectionDraft | null>(null);
   const [draftText, setDraftText] = useState("");
   const passageRef = useRef<HTMLDivElement | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (!allowProgressSave) return;
-    setReaderProgress({ bookId, chapter, translation });
+    const progress = { bookId, chapter, translation };
+    setReaderProgress(progress);
+    void saveReaderProgressToAccount(progress);
   }, [bookId, chapter, translation, allowProgressSave]);
+
+  useEffect(() => {
+    let active = true;
+    loadReaderNotes().then((loadedNotes) => {
+      if (active) {
+        setNotes(loadedNotes);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const chapterNotes = useMemo(() => {
     return notes.filter(
@@ -189,6 +209,7 @@ export function BibleReaderAnnotations({
     };
 
     commitNotes((prev) => [...prev, payload]);
+    void saveReaderNoteToAccount(payload);
   }
 
   function handleMouseUp() {
@@ -369,9 +390,11 @@ export function BibleReaderAnnotations({
                 note.id === id ? { ...note, note: noteText, updatedAt: now } : note,
               ),
             );
+            void updateReaderNoteInAccount(id, noteText);
           }}
           onDeleteNote={(id) => {
             commitNotes((prev) => prev.filter((note) => note.id !== id));
+            void deleteReaderNoteFromAccount(id);
           }}
           />
         </div>
@@ -445,7 +468,8 @@ function NotesPanel({
   const sortedNotes = [...notes].sort((a, b) => b.updatedAt - a.updatedAt);
   const previewLimit = 180;
   const buildPreview = (text: string) =>
-    text.length > previewLimit ? `${text.slice(0, previewLimit)}…` : text;
+    text.length > previewLimit ? `${text.slice(0, previewLimit)}...` : text;
+  const router = useRouter();
 
   return (
     <aside className="flex max-h-[70vh] flex-col gap-3 rounded-md border border-border bg-card p-4">

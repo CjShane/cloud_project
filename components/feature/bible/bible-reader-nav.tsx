@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { setReaderProgress } from "@/lib/storage/reader-progress";
+import { saveReaderProgressToAccount } from "@/lib/storage/reader-sync";
 
 type BibleReaderNavProps = {
   previousHref?: string | null;
@@ -33,11 +34,13 @@ export function BibleReaderNav({
         return;
       }
 
-      setReaderProgress({
+      const progress = {
         bookId,
         chapter: chapterNumber,
         translation,
-      });
+      };
+      setReaderProgress(progress);
+      void saveReaderProgressToAccount(progress);
     } catch {
       // Ignore parsing errors.
     }

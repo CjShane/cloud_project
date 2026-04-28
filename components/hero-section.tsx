@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, BookOpen } from "lucide-react"
+import { BookOpen } from "lucide-react"
 import type { DailyVerseResult } from "@/lib/api/daily-verse"
 import { Button } from "@/components/ui/button"
 

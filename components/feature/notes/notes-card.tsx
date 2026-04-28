@@ -14,7 +14,7 @@ type NotesCardProps = {
 const PREVIEW_LIMIT = 180;
 
 function buildPreview(text: string) {
-  return text.length > PREVIEW_LIMIT ? `${text.slice(0, PREVIEW_LIMIT)}…` : text;
+  return text.length > PREVIEW_LIMIT ? `${text.slice(0, PREVIEW_LIMIT)}...` : text;
 }
 
 function buildReference(note: HighlightNote, bookName: string) {

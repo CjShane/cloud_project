@@ -1,56 +1,22 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { fetchDailyVerse, fetchRandomVerse } from "../lib/api/daily-verse";
 
 describe("daily verse api", () => {
-  it("normalizes random verse response", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        reference: "John 3:16",
-        translation_id: "web",
-        verses: [
-          {
-            book_name: "John",
-            chapter: 3,
-            verse: 16,
-            text: " For God so loved the world ",
-          },
-        ],
-      }),
-    } as Response);
-    vi.stubGlobal("fetch", fetchMock);
-
+  it("normalizes a random local verse", async () => {
     const result = await fetchRandomVerse("web");
 
-    expect(result.reference).toBe("John 3:16");
-    expect(result.verses[0].text).toBe("For God so loved the world");
+    expect(result.translation).toBe("web");
+    expect(result.reference).toMatch(/\d+:\d+/);
+    expect(result.verses).toHaveLength(1);
+    expect(result.verses[0].text.length).toBeGreaterThan(0);
   });
 
-  it("falls back when random endpoint fails", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce({ ok: false, status: 503 } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          reference: "Psalm 23:1",
-          translation_id: "web",
-          verses: [
-            {
-              book_name: "Psalms",
-              chapter: 23,
-              verse: 1,
-              text: " The LORD is my shepherd; I shall not want. ",
-            },
-          ],
-        }),
-      } as Response);
-    vi.stubGlobal("fetch", fetchMock);
-
+  it("returns a deterministic daily local verse", async () => {
     const result = await fetchDailyVerse("web");
 
-    expect(result.source).toBe("fallback");
-    expect(result.passage.reference).toBe("Psalm 23:1");
+    expect(result.source).toBe("live");
+    expect(result.passage.translation).toBe("web");
+    expect(result.passage.verses).toHaveLength(1);
   });
 });

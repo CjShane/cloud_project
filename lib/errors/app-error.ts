@@ -1,4 +1,5 @@
 export type AppErrorCode =
+  | "INVALID_REFERENCE"
   | "NOT_FOUND"
   | "RATE_LIMITED"
   | "UPSTREAM_UNAVAILABLE"
