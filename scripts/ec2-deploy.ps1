@@ -140,6 +140,6 @@ sudo systemctl --no-pager status scripture-study
 $remoteScript = $remoteScript.Replace("__GIT_REF__", $GitRef)
 $remoteScript = $remoteScript.Replace("__RUN_BOOTSTRAP__", $bootstrapFlag)
 $remoteScript = $remoteScript.Replace("__REMOTE_ENV__", $remoteEnv)
-$remoteScript = $remoteScript -replace "`r`n", "`n"
+$remoteScript = $remoteScript -replace "`r", ""
 
 $remoteScript | ssh -i $KeyPath $remote "bash -s"
