@@ -21,6 +21,27 @@ export type AccountUser = {
   createdAt: string;
 };
 
+const ACCOUNT_CHANGED_EVENT = "scripture-account-changed";
+
+export class ReaderSyncError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = "ReaderSyncError";
+  }
+}
+
+export function notifyAccountChanged() {
+  window.dispatchEvent(new Event(ACCOUNT_CHANGED_EVENT));
+}
+
+export function listenForAccountChanges(listener: () => void) {
+  window.addEventListener(ACCOUNT_CHANGED_EVENT, listener);
+  return () => window.removeEventListener(ACCOUNT_CHANGED_EVENT, listener);
+}
+
 function mergeNotes(localNotes: HighlightNote[], remoteNotes: HighlightNote[]) {
   const byId = new Map<string, HighlightNote>();
   [...remoteNotes, ...localNotes].forEach((note) => {
@@ -35,6 +56,27 @@ function mergeNotes(localNotes: HighlightNote[], remoteNotes: HighlightNote[]) {
 async function readData<T>(response: Response) {
   const payload = (await response.json()) as { data?: T };
   return payload.data;
+}
+
+async function expectOk(response: Response, action: string) {
+  if (response.ok) {
+    return true;
+  }
+  if (response.status === 401) {
+    return false;
+  }
+
+  let message = `${action} failed with HTTP ${response.status}.`;
+  try {
+    const payload = (await response.json()) as {
+      error?: { message?: string };
+    };
+    if (payload.error?.message) {
+      message = payload.error.message;
+    }
+  } catch {}
+
+  throw new ReaderSyncError(message, response.status);
 }
 
 export async function getCurrentAccount() {
@@ -96,58 +138,70 @@ export async function mergeLocalReaderDataToAccount() {
     cache: "no-store",
     credentials: "same-origin",
   });
+  if (!(await expectOk(notesResponse, "Loading notes"))) {
+    return false;
+  }
+
   if (notesResponse.ok) {
     const notesData = await readData<{ notes: unknown }>(notesResponse);
     const mergedNotes = mergeNotes(
       localNotes,
       normalizeHighlightNotes(notesData?.notes),
     );
-    await fetch("/api/user/notes", {
+    const saveNotesResponse = await fetch("/api/user/notes", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ notes: mergedNotes }),
     });
+    if (!(await expectOk(saveNotesResponse, "Saving notes"))) {
+      return false;
+    }
     setReaderNotes(mergedNotes);
   }
 
   if (localProgress) {
-    await saveReaderProgressToAccount(localProgress);
+    return saveReaderProgressToAccount(localProgress);
   } else {
     await loadReaderProgress();
   }
+  return true;
 }
 
 export async function saveReaderNoteToAccount(note: HighlightNote) {
-  await fetch("/api/user/notes", {
+  const response = await fetch("/api/user/notes", {
     method: "POST",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ note }),
   });
+  return expectOk(response, "Saving note");
 }
 
 export async function updateReaderNoteInAccount(id: string, note: string) {
-  await fetch(`/api/user/notes/${encodeURIComponent(id)}`, {
+  const response = await fetch(`/api/user/notes/${encodeURIComponent(id)}`, {
     method: "PATCH",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ note }),
   });
+  return expectOk(response, "Updating note");
 }
 
 export async function deleteReaderNoteFromAccount(id: string) {
-  await fetch(`/api/user/notes/${encodeURIComponent(id)}`, {
+  const response = await fetch(`/api/user/notes/${encodeURIComponent(id)}`, {
     method: "DELETE",
     credentials: "same-origin",
   });
+  return expectOk(response, "Deleting note");
 }
 
 export async function saveReaderProgressToAccount(progress: ReaderProgress) {
-  await fetch("/api/user/progress", {
+  const response = await fetch("/api/user/progress", {
     method: "PUT",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ progress }),
   });
+  return expectOk(response, "Saving reading progress");
 }

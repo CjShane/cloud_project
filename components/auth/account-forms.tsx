@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import {
   getCurrentAccount,
   mergeLocalReaderDataToAccount,
+  notifyAccountChanged,
   type AccountUser,
 } from "@/lib/storage/reader-sync";
 
@@ -32,7 +33,19 @@ export function AccountForms() {
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    getCurrentAccount().then(setUser);
+    let active = true;
+    getCurrentAccount().then(async (account) => {
+      if (!active) return;
+      setUser(account);
+      if (account) {
+        try {
+          await mergeLocalReaderDataToAccount();
+        } catch {}
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -54,10 +67,17 @@ export function AccountForms() {
       return;
     }
 
-    await mergeLocalReaderDataToAccount();
+    let synced = false;
+    try {
+      synced = await mergeLocalReaderDataToAccount();
+    } catch {
+      synced = false;
+    }
     setUser(payload.data.user);
     setPassword("");
+    setMessage(synced ? "" : "Signed in. Local notes will sync once this browser session is authenticated.");
     setPending(false);
+    notifyAccountChanged();
     router.refresh();
   }
 
@@ -67,6 +87,7 @@ export function AccountForms() {
       credentials: "same-origin",
     });
     setUser(null);
+    notifyAccountChanged();
     router.refresh();
   }
 

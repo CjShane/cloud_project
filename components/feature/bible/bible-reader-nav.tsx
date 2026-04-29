@@ -40,7 +40,7 @@ export function BibleReaderNav({
         translation,
       };
       setReaderProgress(progress);
-      void saveReaderProgressToAccount(progress);
+      void saveReaderProgressToAccount(progress).catch(() => {});
     } catch {
       // Ignore parsing errors.
     }

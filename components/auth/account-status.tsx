@@ -6,6 +6,8 @@ import { LogOut, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getCurrentAccount,
+  listenForAccountChanges,
+  notifyAccountChanged,
   type AccountUser,
 } from "@/lib/storage/reader-sync";
 
@@ -15,20 +17,27 @@ export function AccountStatus() {
 
   useEffect(() => {
     let active = true;
-    getCurrentAccount()
-      .then((account) => {
-        if (active) {
-          setUser(account);
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setLoaded(true);
-        }
-      });
+
+    function refreshAccount() {
+      getCurrentAccount()
+        .then((account) => {
+          if (active) {
+            setUser(account);
+          }
+        })
+        .finally(() => {
+          if (active) {
+            setLoaded(true);
+          }
+        });
+    }
+
+    refreshAccount();
+    const removeListener = listenForAccountChanges(refreshAccount);
 
     return () => {
       active = false;
+      removeListener();
     };
   }, []);
 
@@ -38,6 +47,7 @@ export function AccountStatus() {
       credentials: "same-origin",
     });
     setUser(null);
+    notifyAccountChanged();
     window.location.href = "/account";
   }
 

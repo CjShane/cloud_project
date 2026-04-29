@@ -27,6 +27,17 @@ export function sessionCookieName() {
   return process.env.SESSION_COOKIE_NAME || "scripture_session";
 }
 
+export function sessionCookieSecure() {
+  const configured = process.env.SESSION_COOKIE_SECURE?.trim().toLowerCase();
+  if (configured === "true" || configured === "1" || configured === "yes") {
+    return true;
+  }
+  if (configured === "false" || configured === "0" || configured === "no") {
+    return false;
+  }
+  return process.env.NODE_ENV === "production";
+}
+
 function sessionDays() {
   const parsed = Number(process.env.SESSION_DAYS || "30");
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 30;
@@ -78,7 +89,7 @@ export function attachSessionCookie(
   response.cookies.set(sessionCookieName(), token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: sessionCookieSecure(),
     path: "/",
     expires: expiresAt,
   });
@@ -88,7 +99,7 @@ export function clearSessionCookie(response: NextResponse) {
   response.cookies.set(sessionCookieName(), "", {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: sessionCookieSecure(),
     path: "/",
     maxAge: 0,
   });

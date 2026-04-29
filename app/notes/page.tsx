@@ -149,7 +149,7 @@ function NotesPageContent() {
         note.id === id ? { ...note, note: value, updatedAt: now } : note,
       );
       setReaderNotes(next);
-      void updateReaderNoteInAccount(id, value);
+      void updateReaderNoteInAccount(id, value).catch(() => {});
       return next;
     });
   };

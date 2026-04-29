@@ -55,7 +55,7 @@ export function BibleReaderControls({
           translation: normalizedTranslation,
         };
         setReaderProgress(progress);
-        void saveReaderProgressToAccount(progress);
+        void saveReaderProgressToAccount(progress).catch(() => {});
         router.push(buildReaderUrl(bookId, chapter, normalizedTranslation));
       }}
       className="grid gap-3 rounded-lg border border-border bg-card p-4 text-sm text-foreground md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"

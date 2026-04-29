@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { NormalizedPassage } from "@/lib/normalize/bible";
 import type { HighlightNote } from "@/lib/storage/reader-notes";
 import { getReaderNotes, setReaderNotes } from "@/lib/storage/reader-notes";
@@ -145,14 +145,27 @@ export function BibleReaderAnnotations({
   const [selection, setSelection] = useState<SelectionDraft | null>(null);
   const [draftNote, setDraftNote] = useState<SelectionDraft | null>(null);
   const [draftText, setDraftText] = useState("");
+  const [syncError, setSyncError] = useState("");
   const passageRef = useRef<HTMLDivElement | null>(null);
+
+  const syncInBackground = useCallback((operation: Promise<boolean>) => {
+    operation
+      .then((synced) => {
+        if (synced) {
+          setSyncError("");
+        }
+      })
+      .catch(() => {
+        setSyncError("Saved locally. Database sync will retry after you sign in again.");
+      });
+  }, []);
 
   useEffect(() => {
     if (!allowProgressSave) return;
     const progress = { bookId, chapter, translation };
     setReaderProgress(progress);
-    void saveReaderProgressToAccount(progress);
-  }, [bookId, chapter, translation, allowProgressSave]);
+    syncInBackground(saveReaderProgressToAccount(progress));
+  }, [bookId, chapter, translation, allowProgressSave, syncInBackground]);
 
   useEffect(() => {
     let active = true;
@@ -209,7 +222,7 @@ export function BibleReaderAnnotations({
     };
 
     commitNotes((prev) => [...prev, payload]);
-    void saveReaderNoteToAccount(payload);
+    syncInBackground(saveReaderNoteToAccount(payload));
   }
 
   function handleMouseUp() {
@@ -373,6 +386,7 @@ export function BibleReaderAnnotations({
           draftNote={draftNote}
           draftText={draftText}
           onDraftTextChange={setDraftText}
+          syncError={syncError}
           onSaveDraft={() => {
             if (!draftNote) return;
             handleCreateNote(draftText.trim(), draftNote);
@@ -390,11 +404,11 @@ export function BibleReaderAnnotations({
                 note.id === id ? { ...note, note: noteText, updatedAt: now } : note,
               ),
             );
-            void updateReaderNoteInAccount(id, noteText);
+            syncInBackground(updateReaderNoteInAccount(id, noteText));
           }}
           onDeleteNote={(id) => {
             commitNotes((prev) => prev.filter((note) => note.id !== id));
-            void deleteReaderNoteFromAccount(id);
+            syncInBackground(deleteReaderNoteFromAccount(id));
           }}
           />
         </div>
@@ -447,6 +461,7 @@ type NotesPanelProps = {
   draftNote: SelectionDraft | null;
   draftText: string;
   onDraftTextChange: (value: string) => void;
+  syncError: string;
   onSaveDraft: () => void;
   onCancelDraft: () => void;
   onUpdateNote: (id: string, noteText: string) => void;
@@ -460,6 +475,7 @@ function NotesPanel({
   draftNote,
   draftText,
   onDraftTextChange,
+  syncError,
   onSaveDraft,
   onCancelDraft,
   onUpdateNote,
@@ -509,6 +525,12 @@ function NotesPanel({
       ) : notes.length === 0 ? (
         <div className="rounded-md border border-dashed border-border bg-secondary/20 px-3 py-3 text-xs text-muted-foreground">
           Select text to add a highlight or note.
+        </div>
+      ) : null}
+
+      {syncError ? (
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          {syncError}
         </div>
       ) : null}
 
