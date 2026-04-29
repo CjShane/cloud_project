@@ -39,6 +39,7 @@ RUN_BOOTSTRAP="__RUN_BOOTSTRAP__"
 sudo mkdir -p "$APP_DIR"
 sudo chown ec2-user:ec2-user "$APP_DIR"
 sudo mv "__REMOTE_ENV__" /etc/scripture-study.env
+sudo sed -i 's/\r$//' /etc/scripture-study.env
 sudo chmod 600 /etc/scripture-study.env
 
 if command -v dnf >/dev/null 2>&1; then
