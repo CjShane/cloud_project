@@ -42,10 +42,24 @@ sudo mv "__REMOTE_ENV__" /etc/scripture-study.env
 sudo chmod 600 /etc/scripture-study.env
 
 if command -v dnf >/dev/null 2>&1; then
-  sudo dnf install -y git nginx nodejs npm
+  sudo dnf install -y git nginx nodejs22 nodejs22-npm
+  sudo alternatives --set node /usr/bin/node-22 || true
 else
   sudo yum install -y git nginx nodejs npm
 fi
+
+if [ ! -f /swapfile ]; then
+  sudo fallocate -l 2G /swapfile
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab >/dev/null
+elif ! swapon --show=NAME | grep -q '^/swapfile$'; then
+  sudo swapon /swapfile
+fi
+
+node --version
+npm --version
 
 if [ ! -d "$APP_DIR/.git" ]; then
   git clone "$REPO_URL" "$APP_DIR"
