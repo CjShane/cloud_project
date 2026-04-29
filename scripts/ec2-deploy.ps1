@@ -39,7 +39,7 @@ RUN_BOOTSTRAP="__RUN_BOOTSTRAP__"
 sudo mkdir -p "$APP_DIR"
 sudo chown ec2-user:ec2-user "$APP_DIR"
 sudo mv "__REMOTE_ENV__" /etc/scripture-study.env
-sudo sed -i 's/\r$//' /etc/scripture-study.env
+sudo sed -i -E 's/\r$//; s/[[:space:]]+$//' /etc/scripture-study.env
 sudo chmod 600 /etc/scripture-study.env
 
 if command -v dnf >/dev/null 2>&1; then
@@ -77,12 +77,18 @@ set -a
 . /etc/scripture-study.env
 set +a
 
+if [ "${NODE_ENV:-}" != "production" ]; then
+  echo "NODE_ENV must be production for EC2 deploy; got '${NODE_ENV:-unset}'" >&2
+  exit 1
+fi
+
 if [ "$RUN_BOOTSTRAP" = "1" ]; then
   npm run db:bootstrap:mysql
 else
   npm run db:migrate
 fi
 
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=768}"
 npm run build
 
 sudo tee /etc/systemd/system/scripture-study.service >/dev/null <<'SERVICE'
